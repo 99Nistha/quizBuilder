@@ -91,4 +91,12 @@ export const seeds = [
     },
     fakePlay: splitPicks,
   },
+  {
+    type: 'poll',
+    slug: 'best-pixar-sad-moment',
+    title: 'Which Pixar moment destroyed you the most?',
+    category: 'movies',
+    data: { items: items('The first 10 minutes of Up', 'Bing Bong in Inside Out', 'Jessie\u2019s song in Toy Story 2', 'Remember Me in Coco', 'The incinerator in Toy Story 3') },
+    fakePlay: (data) => ({ pick: data.items[Math.floor(Math.random() ** 1.6 * data.items.length)].id }),
+  },
 ];

@@ -45,6 +45,18 @@ export default function FormatArt({ type }) {
           <text x="86" y="50" fontSize="20" fontWeight="800" textAnchor="middle" fill="#161616" fontFamily="Rubik">?!</text>
         </svg>
       );
+    case 'poll':
+      return (
+        <svg {...common}>
+          {[52, 80, 30].map((w, i) => (
+            <g key={i}>
+              <rect x="12" y={12 + i * 20} width="96" height="14" rx="7" fill="#fff" opacity=".35" />
+              <rect x="12" y={12 + i * 20} width={w} height="14" rx="7" fill={i === 1 ? '#ffd400' : '#fff'} stroke="#161616" strokeWidth="2" />
+            </g>
+          ))}
+          <circle cx="98" cy="39" r="4" fill="#161616" />
+        </svg>
+      );
     default:
       return (
         <svg {...common}>

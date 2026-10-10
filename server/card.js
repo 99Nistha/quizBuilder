@@ -51,7 +51,7 @@ function wrap(s, size, maxW, maxLines) {
 function listRows(rows, color, top, { mystery, marks = 'numbers' } = {}) {
   const twoCols = rows.length > 6;
   const perCol = twoCols ? Math.ceil(rows.length / 2) : rows.length;
-  const avail = 470 - top;
+  const avail = 500 - top;
   const rowH = Math.min(54, Math.floor(avail / perCol));
   const size = Math.min(28, rowH - 16);
   const colW = twoCols ? 500 : 1040;
@@ -80,7 +80,7 @@ function listRows(rows, color, top, { mystery, marks = 'numbers' } = {}) {
 const TIER_COLORS = ['#ff6b6b', '#ffa94d', '#ffd43b', '#8ce99a', '#74c0fc', '#b197fc'];
 
 function tierRows(rows, top) {
-  const rowH = Math.min(62, Math.floor((470 - top) / rows.length));
+  const rowH = Math.min(62, Math.floor((500 - top) / rows.length));
   const size = Math.min(24, rowH - 22);
   return rows
     .map((row, i) => {
@@ -95,18 +95,19 @@ function tierRows(rows, top) {
 }
 
 function barRows(rows, color, top) {
-  const rowH = Math.min(70, Math.floor((470 - top) / rows.length));
-  const size = Math.min(26, rowH - 30);
+  const rowH = Math.min(70, Math.floor((500 - top) / rows.length));
+  const size = Math.max(16, Math.min(26, Math.round(rowH * 0.48)));
+  const max = Math.max(...rows.map((r) => r.pct), 1);
   return rows
     .map((row, i) => {
       const y = top + i * rowH;
-      const w = Math.max(6, Math.round((row.pct / 100) * 1040));
+      const w = Math.max(6, Math.round((row.pct / max) * 1040));
       return `
         ${row.mine ? `<circle cx="88" cy="${y + size * 0.62}" r="8" fill="${color}"/>` : ''}
         <text x="${row.mine ? 106 : 80}" y="${y + size}" font-family="Rubik" font-weight="${row.mine ? 800 : 500}" font-size="${size}" fill="${INK}">${esc(fit(row.label + (row.mine ? ' (me)' : ''), size, 860))}</text>
         <text x="1120" y="${y + size}" text-anchor="end" font-family="Rubik" font-weight="800" font-size="${size}" fill="${INK}">${row.pct}%</text>
-        <rect x="80" y="${y + size + 8}" width="1040" height="12" rx="6" fill="#ece7df"/>
-        <rect x="80" y="${y + size + 8}" width="${w}" height="12" rx="6" fill="${row.mine || i === 0 ? color : '#8a857d'}"/>`;
+        <rect x="80" y="${y + size + 7}" width="1040" height="10" rx="5" fill="#ece7df"/>
+        <rect x="80" y="${y + size + 7}" width="${w}" height="10" rx="5" fill="${row.mine || i === 0 ? color : '#8a857d'}"/>`;
     })
     .join('');
 }

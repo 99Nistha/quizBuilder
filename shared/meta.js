@@ -37,6 +37,12 @@ export const FORMATS = {
     color: '#7b61ff',
     verb: 'Choose',
   },
+  poll: {
+    name: 'Poll',
+    pitch: 'One question, a few options, live results. Settle it once and for all.',
+    color: '#1db954',
+    verb: 'Vote',
+  },
 };
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));
