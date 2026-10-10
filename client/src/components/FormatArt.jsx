@@ -23,6 +23,18 @@ export default function FormatArt({ type }) {
           </g>
         </svg>
       );
+    case 'this_or_that':
+      return (
+        <svg {...common}>
+          <rect x="8" y="14" width="42" height="52" rx="8" fill="#fff" stroke="#161616" strokeWidth="2.5" transform="rotate(-6 29 40)" />
+          <rect x="70" y="14" width="42" height="52" rx="8" fill="#fff" stroke="#161616" strokeWidth="2.5" transform="rotate(5 91 40)" />
+          <circle cx="60" cy="40" r="14" fill="#ffd400" stroke="#161616" strokeWidth="2.5" />
+          <text x="60" y="45" fontSize="13" fontWeight="800" textAnchor="middle" fill="#161616" fontFamily="Rubik">
+            or
+          </text>
+          <path d="M84 38l5 6 10-12" fill="none" stroke="#2f7bff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
     default:
       return (
         <svg {...common}>

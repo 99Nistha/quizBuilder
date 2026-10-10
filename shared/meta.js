@@ -25,6 +25,12 @@ export const FORMATS = {
     color: '#ee3322',
     verb: 'Rank',
   },
+  this_or_that: {
+    name: 'This or that',
+    pitch: 'Two options, pick one, repeat. Then see if everyone else agrees.',
+    color: '#2f7bff',
+    verb: 'Pick',
+  },
 };
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));

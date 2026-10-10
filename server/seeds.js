@@ -7,6 +7,9 @@ const leaning = (data, shuffle) => {
   return { order: Math.random() < 0.45 ? ids : shuffle(ids) };
 };
 
+const pairs = (...list) => list.map(([a, b], i) => ({ id: `p${i + 1}`, a: { label: a }, b: { label: b } }));
+const splitPicks = (data) => ({ picks: Object.fromEntries(data.pairs.map((p, i) => [p.id, Math.random() < 0.3 + ((i * 37) % 50) / 100 ? 'a' : 'b'])) });
+
 export const seeds = [
   {
     type: 'blind_ranking',
@@ -53,5 +56,22 @@ export const seeds = [
     category: 'tv',
     data: { items: items('The Office', 'Friends', 'Parks and Rec', 'Brooklyn Nine-Nine', 'Modern Family', 'New Girl', 'Schitt’s Creek') },
     fakePlay: leaning,
+  },
+  {
+    type: 'this_or_that',
+    slug: 'this-or-that-snacks',
+    title: 'This or that: snack aisle edition',
+    blurb: 'Quick, no thinking. Your gut knows.',
+    category: 'food',
+    data: { pairs: pairs(['Sweet', 'Salty'], ['Doritos', 'Pringles'], ['KitKat', 'Twix'], ['Popcorn', 'Nachos'], ['Gummy bears', 'Sour worms'], ['Oreos', 'Chips Ahoy'], ['Hot Cheetos', 'Takis']) },
+    fakePlay: splitPicks,
+  },
+  {
+    type: 'this_or_that',
+    slug: 'this-or-that-2000s-pop',
+    title: 'Pick one: 2000s pop girlies',
+    category: 'music',
+    data: { pairs: pairs(['Britney', 'Christina'], ['Avril', 'Kelly Clarkson'], ['Beyoncé', 'Rihanna'], ['Nelly Furtado', 'Shakira'], ['Hilary Duff', 'Lindsay Lohan']) },
+    fakePlay: splitPicks,
   },
 ];

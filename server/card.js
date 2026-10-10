@@ -47,23 +47,49 @@ function wrap(s, size, maxW, maxLines) {
   return lines;
 }
 
-function listRows(rows, color, top, mystery) {
+// rows: strings, or { label, right } when there's a score to show on the right.
+function listRows(rows, color, top, { mystery, marks = 'numbers' } = {}) {
   const twoCols = rows.length > 6;
   const perCol = twoCols ? Math.ceil(rows.length / 2) : rows.length;
   const avail = 470 - top;
   const rowH = Math.min(54, Math.floor(avail / perCol));
   const size = Math.min(28, rowH - 16);
-  const colW = twoCols ? 520 : 1040;
+  const colW = twoCols ? 500 : 1040;
   return rows
-    .map((label, i) => {
+    .map((row, i) => {
+      const { label, right } = typeof row === 'string' ? { label: row } : row;
       const col = twoCols && i >= perCol ? 1 : 0;
       const x = 80 + col * 540;
       const y = top + (i - col * perCol) * rowH;
+      const cy = y + rowH / 2;
       const r = Math.round(rowH * 0.38);
+      const base = cy + size * 0.36;
+      const hot = i === 0 && marks === 'numbers' && !mystery;
+      const mark =
+        marks === 'checks'
+          ? `<circle cx="${x + r}" cy="${cy}" r="${r}" fill="${color}"/><path d="M${x + r * 0.5} ${cy} l${r * 0.35} ${r * 0.38} l${r * 0.68} -${r * 0.75}" fill="none" stroke="#fff" stroke-width="${Math.max(3, r / 4)}" stroke-linecap="round" stroke-linejoin="round"/>`
+          : `<circle cx="${x + r}" cy="${cy}" r="${r}" fill="${hot ? color : INK}"/><text x="${x + r}" y="${base}" text-anchor="middle" font-family="Rubik" font-weight="800" font-size="${Math.round(size * 0.85)}" fill="#fff">${i + 1}</text>`;
+      const rightW = right ? widthOf(String(right), size) + 24 : 0;
+      return `${mark}
+        <text x="${x + r * 2 + 16}" y="${base}" font-family="Rubik" font-weight="${hot ? 700 : 500}" font-size="${size}" fill="${mystery ? '#b5b0a8' : INK}">${esc(fit(label, size, colW - r * 2 - 30 - rightW))}</text>
+        ${right ? `<text x="${x + colW}" y="${base}" text-anchor="end" font-family="Rubik" font-weight="800" font-size="${size}" fill="${color}">${esc(right)}</text>` : ''}`;
+    })
+    .join('');
+}
+
+const TIER_COLORS = ['#ff6b6b', '#ffa94d', '#ffd43b', '#8ce99a', '#74c0fc', '#b197fc'];
+
+function tierRows(rows, top) {
+  const rowH = Math.min(62, Math.floor((470 - top) / rows.length));
+  const size = Math.min(24, rowH - 22);
+  return rows
+    .map((row, i) => {
+      const y = top + i * rowH;
+      const h = rowH - 8;
       return `
-        <circle cx="${x + r}" cy="${y + rowH / 2}" r="${r}" fill="${i === 0 && !mystery ? color : INK}"/>
-        <text x="${x + r}" y="${y + rowH / 2 + size * 0.36}" text-anchor="middle" font-family="Rubik" font-weight="800" font-size="${Math.round(size * 0.85)}" fill="#fff">${i + 1}</text>
-        <text x="${x + r * 2 + 16}" y="${y + rowH / 2 + size * 0.36}" font-family="Rubik" font-weight="${i === 0 ? 700 : 500}" font-size="${size}" fill="${mystery ? '#b5b0a8' : INK}">${esc(fit(label, size, colW - r * 2 - 40))}</text>`;
+        <rect x="80" y="${y}" width="${h}" height="${h}" rx="8" fill="${TIER_COLORS[i % TIER_COLORS.length]}" stroke="${INK}" stroke-width="2.5"/>
+        <text x="${80 + h / 2}" y="${y + h / 2 + size * 0.4}" text-anchor="middle" font-family="Archivo Black" font-size="${Math.round(size * 1.15)}" fill="${INK}">${esc(clean(row.tier).slice(0, 3))}</text>
+        <text x="${80 + h + 18}" y="${y + h / 2 + size * 0.36}" font-family="Rubik" font-weight="600" font-size="${size}" fill="${row.items.length ? INK : '#b5b0a8'}">${esc(fit(row.items.length ? row.items.join(', ') : 'nothing', size, 1040 - h - 20))}</text>`;
     })
     .join('');
 }
@@ -76,7 +102,8 @@ function barRows(rows, color, top) {
       const y = top + i * rowH;
       const w = Math.max(6, Math.round((row.pct / 100) * 1040));
       return `
-        <text x="80" y="${y + size}" font-family="Rubik" font-weight="${row.mine ? 800 : 500}" font-size="${size}" fill="${INK}">${esc(fit((row.mine ? '✓ ' : '') + row.label, size, 880))}</text>
+        ${row.mine ? `<circle cx="88" cy="${y + size * 0.62}" r="8" fill="${color}"/>` : ''}
+        <text x="${row.mine ? 106 : 80}" y="${y + size}" font-family="Rubik" font-weight="${row.mine ? 800 : 500}" font-size="${size}" fill="${INK}">${esc(fit(row.label + (row.mine ? ' (me)' : ''), size, 860))}</text>
         <text x="1120" y="${y + size}" text-anchor="end" font-family="Rubik" font-weight="800" font-size="${size}" fill="${INK}">${row.pct}%</text>
         <rect x="80" y="${y + size + 8}" width="1040" height="12" rx="6" fill="#ece7df"/>
         <rect x="80" y="${y + size + 8}" width="${w}" height="12" rx="6" fill="${row.mine || i === 0 ? color : '#8a857d'}"/>`;
@@ -99,14 +126,15 @@ function bigBlock(card, color, top) {
 }
 
 export function cardSvg({ game, card, url }) {
-  const color = FORMATS[game.type]?.color ?? '#ee3322';
+  const color = FORMATS[game.type]?.cardColor ?? FORMATS[game.type]?.color ?? '#ee3322';
   const titleLines = wrap(game.title, 44, 1040, 2);
   const kicker = clean(card.kicker).toUpperCase();
   const kickerW = widthOf(kicker, 18) * 1.12 + 36;
   const bodyTop = 150 + titleLines.length * 50;
 
   let body = '';
-  if (card.layout === 'list') body = listRows(card.rows, color, bodyTop, card.mystery);
+  if (card.layout === 'list') body = listRows(card.rows, color, bodyTop, card);
+  else if (card.layout === 'tiers') body = tierRows(card.rows, bodyTop);
   else if (card.layout === 'bars') body = barRows(card.rows, color, bodyTop);
   else if (card.layout === 'big') body = bigBlock(card, color, bodyTop - 10);
 

@@ -1,4 +1,5 @@
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { FORMATS } from '../../../shared/meta.js';
 import ShareBox from '../components/ShareBox.jsx';
 import { formatUI } from '../formats/index.js';
 import { api } from '../lib/api.js';
@@ -21,7 +22,7 @@ export default function Result() {
   const url = `${location.origin}/r/${id}`;
 
   return (
-    <div className="wrap narrow">
+    <div className="wrap narrow" style={{ '--fc': FORMATS[game.type].color }}>
       <GameHeader game={game} />
       {!yours && (
         <div className="callout callout-turn">

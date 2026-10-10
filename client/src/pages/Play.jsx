@@ -77,7 +77,7 @@ export default function Play() {
         </p>
       )}
       {ui ? (
-        <ui.Player key={round} game={game} onDone={finish} saving={saving} />
+        <ui.Player key={round} game={game} stats={data.stats} onDone={finish} saving={saving} />
       ) : (
         <p className="empty">This game type isn't playable yet.</p>
       )}
