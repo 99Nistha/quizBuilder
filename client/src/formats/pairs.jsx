@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AutoPictures from '../components/AutoPictures.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
 import ItemFace from '../components/ItemFace.jsx';
 import { newItem } from '../components/ItemsEditor.jsx';
@@ -35,7 +36,7 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
                     placeholder={i === 0 ? placeholders[j] : ''}
                     onChange={(e) => update(p.id, side, { label: e.target.value })}
                   />
-                  <ImagePicker compact value={p[side].image} onChange={(image) => update(p.id, side, { image })} label="pic" />
+                  <ImagePicker compact value={p[side].image} onChange={(image) => update(p.id, side, { image })} query={p[side].label} />
                 </div>
               ))}
               <button type="button" className="item-x" onClick={() => remove(p.id)} disabled={data.pairs.length <= min} aria-label="Remove">
@@ -44,11 +45,28 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
             </li>
           ))}
         </ol>
-        {data.pairs.length < max && (
-          <button type="button" className="btn btn-outline btn-small" onClick={() => setData({ ...data, pairs: [...data.pairs, newPair()] })}>
-            + Add another
-          </button>
-        )}
+        <div className="editor-actions">
+          {data.pairs.length < max && (
+            <button type="button" className="btn btn-outline btn-small" onClick={() => setData({ ...data, pairs: [...data.pairs, newPair()] })}>
+              + Add another
+            </button>
+          )}
+          {!big && (
+            <AutoPictures
+              entries={data.pairs.flatMap((p) => ['a', 'b'].filter((s) => !p[s].image).map((s) => ({ key: `${p.id}:${s}`, label: p[s].label })))}
+              onDone={(found) =>
+                setData({
+                  ...data,
+                  pairs: data.pairs.map((p) => ({
+                    ...p,
+                    a: found[`${p.id}:a`] ? { ...p.a, image: found[`${p.id}:a`] } : p.a,
+                    b: found[`${p.id}:b`] ? { ...p.b, image: found[`${p.id}:b`] } : p.b,
+                  })),
+                })
+              }
+            />
+          )}
+        </div>
         <p className="hint">
           {min} to {max} {noun}s.
         </p>
@@ -59,7 +77,16 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
   function Option({ option, onPick, picked, share, reveal, disabled }) {
     return (
       <button className={`pick ${big ? 'pick-big' : ''} ${picked ? 'pick-on' : ''} ${reveal && !picked ? 'pick-off' : ''}`} onClick={onPick} disabled={disabled}>
-        {option.image ? <ItemFace item={option} size="pick" /> : <span className="pick-text">{option.label}</span>}
+        {option.image && big ? (
+          <>
+            <img src={option.image} alt="" className="pick-img" />
+            <span className="pick-text">{option.label}</span>
+          </>
+        ) : option.image ? (
+          <ItemFace item={option} size="pick" />
+        ) : (
+          <span className="pick-text">{option.label}</span>
+        )}
         {reveal && <span className="pick-pct">{share}%</span>}
       </button>
     );

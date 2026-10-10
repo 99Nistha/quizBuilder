@@ -27,18 +27,19 @@ export default {
   },
 
   card(game, result, stats) {
-    const label = (id) => game.data.items.find((i) => i.id === id)?.label;
+    const item = (id) => game.data.items.find((i) => i.id === id);
+    const label = (id) => item(id)?.label;
     if (result) {
       const rows = Object.entries(result.ratings)
         .sort((a, b) => b[1] - a[1])
-        .map(([id, v]) => ({ label: label(id), right: `${v}/10` }));
+        .map(([id, v]) => ({ label: label(id), image: item(id)?.image, right: `${v}/10` }));
       return { kicker: 'My ratings', layout: 'list', rows };
     }
     if (stats.count >= 3) {
-      const rows = [...stats.items].sort((a, b) => b.avg - a.avg).map((s) => ({ label: label(s.id), right: `${s.avg}` }));
+      const rows = [...stats.items].sort((a, b) => b.avg - a.avg).map((s) => ({ label: label(s.id), image: item(s.id)?.image, right: `${s.avg}` }));
       return { kicker: `Average ratings from ${stats.count.toLocaleString('en-US')} people`, layout: 'list', rows };
     }
-    return { kicker: 'Rate these out of 10', layout: 'list', marks: 'checks', rows: game.data.items.map((i) => i.label) };
+    return { kicker: 'Rate these out of 10', layout: 'list', marks: 'checks', rows: game.data.items.map((i) => ({ label: i.label, image: i.image })) };
   },
 
   summary(game, result) {

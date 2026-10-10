@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { beatPct, scoreQuip } from '../../../shared/quips.js';
+import AnswerButton from '../components/AnswerButton.jsx';
 import QuestionsEditor, { newQuestion } from '../components/QuestionsEditor.jsx';
 
 function Editor({ data, setData }) {
@@ -47,13 +48,11 @@ function Player({ game, onDone, saving }) {
       <div className="q-card" key={q.id}>
         {q.image && <img src={q.image} alt="" className="q-img" />}
         <h2 className="q-text">{q.text}</h2>
-        <div className="q-answers">
+        <div className={`q-answers ${q.answers.some((a) => a.image) ? 'q-answers-pics' : ''}`}>
           {q.answers.map((a) => {
             const state = !chosen ? '' : a.id === q.correct ? 'right' : a.id === chosen ? 'wrong' : 'dim';
             return (
-              <button key={a.id} className={`answer ${state}`} disabled={Boolean(chosen)} onClick={() => setAnswers((x) => ({ ...x, [q.id]: a.id }))}>
-                {a.label}
-              </button>
+              <AnswerButton key={a.id} answer={a} className={state} disabled={Boolean(chosen)} onClick={() => setAnswers((x) => ({ ...x, [q.id]: a.id }))} />
             );
           })}
         </div>

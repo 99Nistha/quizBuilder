@@ -18,6 +18,9 @@ export default function Privacy() {
         If we ever work with brands, they only see totals like “68% picked Folklore”. Never anything about you personally. We don't sell data. That's not a vibe we're going for.
       </p>
       <p>Pictures you upload are public, since the whole point is that people see them. Please only upload stuff you're okay sharing.</p>
+      <p>
+        When you search for a picture, our server looks it up on Wikipedia, iTunes and Openverse for you. Only the words you searched for are sent, nothing about who you are.
+      </p>
     </div>
   );
 }

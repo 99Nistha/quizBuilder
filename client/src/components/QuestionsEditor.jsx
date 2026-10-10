@@ -7,7 +7,7 @@ export const newQuestion = (answers = 3) => ({
   image: null,
   note: '',
   correct: null,
-  answers: Array.from({ length: answers }, () => ({ id: newItem().id, label: '', result: null })),
+  answers: Array.from({ length: answers }, () => ({ id: newItem().id, label: '', result: null, image: null })),
 });
 
 // Used by trivia (each question has one right answer) and personality
@@ -31,7 +31,7 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
             <div className="q-head">
               <span className="q-num">Q{i + 1}</span>
               <input type="text" className="q-input" value={q.text} maxLength={160} placeholder={i === 0 ? (mode === 'trivia' ? 'Which planet has the most moons?' : 'Pick a Sunday activity') : 'Question'} onChange={(e) => setQ(q.id, { text: e.target.value })} />
-              <ImagePicker compact value={q.image} onChange={(image) => setQ(q.id, { image })} label="pic" />
+              <ImagePicker compact value={q.image} onChange={(image) => setQ(q.id, { image })} query={q.text} />
               <button type="button" className="item-x" disabled={questions.length <= min} onClick={() => onChange(questions.filter((x) => x.id !== q.id))} aria-label="Remove question">
                 ×
               </button>
@@ -46,6 +46,7 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
                     </label>
                   )}
                   <input type="text" className="q-input" value={a.label} maxLength={80} placeholder={`Answer ${j + 1}`} onChange={(e) => setA(q, a.id, { label: e.target.value })} />
+                  <ImagePicker compact value={a.image} onChange={(image) => setA(q, a.id, { image })} query={a.label} />
                   {mode === 'personality' && (
                     <select className="select a-result" value={a.result ?? ''} onChange={(e) => setA(q, a.id, { result: e.target.value || null })} aria-label="Counts towards">
                       <option value="">counts towards…</option>
@@ -64,7 +65,7 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
             </ul>
             <div className="q-foot">
               {q.answers.length < 4 && (
-                <button type="button" className="link-btn" onClick={() => setQ(q.id, { answers: [...q.answers, { id: newItem().id, label: '', result: null }] })}>
+                <button type="button" className="link-btn" onClick={() => setQ(q.id, { answers: [...q.answers, { id: newItem().id, label: '', result: null, image: null }] })}>
                   + another answer
                 </button>
               )}

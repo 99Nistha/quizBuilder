@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import AutoPictures from '../components/AutoPictures.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
 import { newItem } from '../components/ItemsEditor.jsx';
+import AnswerButton from '../components/AnswerButton.jsx';
 import QuestionsEditor, { newQuestion } from '../components/QuestionsEditor.jsx';
 import { Bars } from './poll.jsx';
 
@@ -21,7 +23,7 @@ function ResultsEditor({ results, onChange }) {
             <div className="q-head">
               <span className="q-num">{String.fromCharCode(65 + i)}</span>
               <input type="text" className="q-input" value={r.label} maxLength={60} placeholder={['Folklore', 'Reputation', '1989'][i] ?? 'Result'} onChange={(e) => set(r.id, { label: e.target.value })} />
-              <ImagePicker compact value={r.image} onChange={(image) => set(r.id, { image })} label="pic" />
+              <ImagePicker compact value={r.image} onChange={(image) => set(r.id, { image })} query={r.label} />
               <button type="button" className="item-x" disabled={results.length <= 2} onClick={() => onChange(results.filter((x) => x.id !== r.id))} aria-label="Remove result">
                 ×
               </button>
@@ -32,11 +34,14 @@ function ResultsEditor({ results, onChange }) {
           </li>
         ))}
       </ol>
-      {results.length < 8 && (
-        <button type="button" className="btn btn-outline btn-small" onClick={() => onChange([...results, newResult()])}>
-          + Add a result
-        </button>
-      )}
+      <div className="editor-actions">
+        {results.length < 8 && (
+          <button type="button" className="btn btn-outline btn-small" onClick={() => onChange([...results, newResult()])}>
+            + Add a result
+          </button>
+        )}
+        <AutoPictures entries={results.filter((r) => !r.image).map((r) => ({ key: r.id, label: r.label }))} onDone={(found) => onChange(results.map((r) => (found[r.id] ? { ...r, image: found[r.id] } : r)))} />
+      </div>
     </fieldset>
   );
 }
@@ -75,11 +80,9 @@ function Player({ game, onDone, saving }) {
       <div className="q-card" key={q.id}>
         {q.image && <img src={q.image} alt="" className="q-img" />}
         <h2 className="q-text">{q.text}</h2>
-        <div className="q-answers">
+        <div className={`q-answers ${q.answers.some((a) => a.image) ? 'q-answers-pics' : ''}`}>
           {q.answers.map((a) => (
-            <button key={a.id} className={`answer ${answers[q.id] === a.id ? 'right' : ''}`} disabled={saving} onClick={() => answer(a.id)}>
-              {a.label}
-            </button>
+            <AnswerButton key={a.id} answer={a} className={answers[q.id] === a.id ? 'right' : ''} disabled={saving} onClick={() => answer(a.id)} />
           ))}
         </div>
         {i > 0 && !saving && (

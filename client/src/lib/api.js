@@ -15,6 +15,8 @@ export const api = {
   create: (game) => request('/api/games', { method: 'POST', body: JSON.stringify(game) }),
   play: (slug, result) => request(`/api/games/${encodeURIComponent(slug)}/plays`, { method: 'POST', body: JSON.stringify({ result }) }),
   result: (id) => request(`/api/results/${encodeURIComponent(id)}`),
+  imageSearch: (q, category = '', quick = false) => request(`/api/image-search?${new URLSearchParams({ q, category, ...(quick ? { quick: 1 } : {}) })}`),
+  importImage: (url) => request('/api/images/import', { method: 'POST', body: JSON.stringify({ url }) }),
   upload: (file) => {
     const form = new FormData();
     form.append('image', file);

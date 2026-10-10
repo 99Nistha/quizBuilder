@@ -34,12 +34,13 @@ export default {
   },
 
   card(game, result, stats) {
-    const label = (id) => game.data.items.find((i) => i.id === id)?.label ?? '?';
+    const item = (id) => game.data.items.find((i) => i.id === id);
+    const row = (id) => ({ label: item(id)?.label ?? '?', image: item(id)?.image });
     if (result) {
-      return { kicker: 'My blind ranking', layout: 'list', rows: result.order.map(label) };
+      return { kicker: 'My blind ranking', layout: 'list', rows: result.order.map(row) };
     }
     if (stats.count >= 3) {
-      return { kicker: `How ${stats.count.toLocaleString('en-US')} people ranked it`, layout: 'list', rows: stats.items.map((i) => label(i.id)) };
+      return { kicker: `How ${stats.count.toLocaleString('en-US')} people ranked it`, layout: 'list', rows: stats.items.map((i) => row(i.id)) };
     }
     return { kicker: 'Blind ranking: can you do it?', layout: 'list', rows: game.data.items.map((i) => '???'), mystery: true };
   },

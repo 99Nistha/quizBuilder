@@ -18,9 +18,10 @@ export default {
   },
 
   card(game, result, stats) {
-    const label = (id) => game.data.items.find((i) => i.id === id)?.label;
-    if (!stats.count) return { kicker: 'Quick poll', layout: 'list', rows: game.data.items.map((i) => i.label) };
-    const rows = [...stats.items].sort((a, b) => b.votes - a.votes).map((s) => ({ label: label(s.id), pct: s.pct, mine: s.id === result?.pick }));
+    const item = (id) => game.data.items.find((i) => i.id === id);
+    const label = (id) => item(id)?.label;
+    if (!stats.count) return { kicker: 'Quick poll', layout: 'list', rows: game.data.items.map((i) => ({ label: i.label, image: i.image })) };
+    const rows = [...stats.items].sort((a, b) => b.votes - a.votes).map((s) => ({ label: label(s.id), image: item(s.id)?.image, pct: s.pct, mine: s.id === result?.pick }));
     return { kicker: result ? `I voted. ${stats.count.toLocaleString('en-US')} votes so far` : `${stats.count.toLocaleString('en-US')} votes so far`, layout: 'bars', rows };
   },
 

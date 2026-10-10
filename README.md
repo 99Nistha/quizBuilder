@@ -25,6 +25,20 @@ PUBLIC_URL=https://your-domain.com npm start   # serves everything on PORT (defa
 
 Blind ranking, this or that, would you rather, poll (live results), trivia quiz, personality quiz, tier list, bracket, and rate these. Every one ends on a result page with its own link and a share card.
 
+## Pictures
+
+Anything that can have a picture has a camera button: items, both sides of a pair, quiz questions, quiz answers, personality results and covers. It opens one dialog that:
+
+- searches as you type, pre-filled with what you already wrote (Wikipedia first, then iTunes artwork for Music/Movies/TV, then Creative Commons photos from Openverse; no API keys needed)
+- uploads from your device (resized to 900px on the server)
+- or takes a pasted https link
+
+"Find pictures for me" fills in every item that has a name but no picture yet. Picked search results are copied onto our own disk so they never break, and they show up on share cards too.
+
+Set `IMAGE_SEARCH_CONTACT` (your site URL or email) in production. Wikimedia asks API users to identify themselves and will rate limit you otherwise.
+
+Heads up on rights: Wikipedia and iTunes pictures of films, albums and characters are usually copyrighted (Wikipedia uses them under fair use). That's normal for fan-made quizzes, but for brand/sponsored games use pictures the brand provides.
+
 ## How it fits together
 
 - `server/` Express + SQLite. `server/formats/*` holds the rules for each game type: validating a new game, validating a play, crowd stats, and what goes on the share card.

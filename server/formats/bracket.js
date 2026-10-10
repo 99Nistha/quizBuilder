@@ -40,7 +40,8 @@ export default {
   },
 
   card(game, result, stats) {
-    const label = (id) => game.data.items.find((i) => i.id === id)?.label;
+    const item = (id) => game.data.items.find((i) => i.id === id);
+    const label = (id) => item(id)?.label;
     if (result) {
       const { rounds } = result;
       const champ = rounds[rounds.length - 1][0];
@@ -55,14 +56,15 @@ export default {
         kicker: stats.count >= 5 ? `My champion (${share}% agree)` : 'My champion',
         layout: 'big',
         big: label(champ),
+        image: item(champ)?.image,
         sub: `Beat ${beaten[0]} in the final${beaten[1] ? `, ${beaten[1]} in the semis` : ''}${beaten[2] ? ` and ${beaten[2]} before that` : ''}.`,
       };
     }
     if (stats.count >= 5) {
-      const rows = [...stats.items].sort((a, b) => b.votes - a.votes).slice(0, 5).map((s) => ({ label: label(s.id), pct: s.pct }));
+      const rows = [...stats.items].sort((a, b) => b.votes - a.votes).slice(0, 5).map((s) => ({ label: label(s.id), image: item(s.id)?.image, pct: s.pct }));
       return { kicker: 'Who people crowned', layout: 'bars', rows };
     }
-    return { kicker: `${game.data.items.length}-way knockout`, layout: 'list', marks: 'checks', rows: game.data.items.slice(0, 8).map((i) => i.label) };
+    return { kicker: `${game.data.items.length}-way knockout`, layout: 'list', marks: 'checks', rows: game.data.items.slice(0, 8).map((i) => ({ label: i.label, image: i.image })) };
   },
 
   summary(game, result) {

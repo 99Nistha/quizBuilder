@@ -4,6 +4,7 @@ import { CATEGORIES, FORMATS, LIMITS } from '../../../shared/meta.js';
 import ImagePicker from '../components/ImagePicker.jsx';
 import { formatUI } from '../formats/index.js';
 import { api } from '../lib/api.js';
+import { PictureContext } from '../lib/pictures.js';
 import { useTitle } from '../lib/util.js';
 import NotFound from './NotFound.jsx';
 
@@ -39,6 +40,7 @@ export default function Create() {
   }
 
   return (
+    <PictureContext.Provider value={{ category: meta.category }}>
     <form className="wrap narrow maker" onSubmit={publish}>
       <p className="maker-back">
         <Link to="/make">← other formats</Link>
@@ -86,7 +88,7 @@ export default function Create() {
             <span>
               Cover pic <em>optional</em>
             </span>
-            <ImagePicker value={meta.cover} onChange={(cover) => setMeta((m) => ({ ...m, cover }))} label="Add a cover" />
+            <ImagePicker value={meta.cover} onChange={(cover) => setMeta((m) => ({ ...m, cover }))} label="Add a cover" query={meta.title} />
           </div>
         </div>
       </fieldset>
@@ -101,5 +103,6 @@ export default function Create() {
         <span className="maker-fine">Anyone with the link can play. Keep it fun, keep it kind.</span>
       </div>
     </form>
+    </PictureContext.Provider>
   );
 }

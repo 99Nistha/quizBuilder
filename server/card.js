@@ -57,7 +57,7 @@ function listRows(rows, color, top, { mystery, marks = 'numbers' } = {}) {
   const colW = twoCols ? 500 : 1040;
   return rows
     .map((row, i) => {
-      const { label, right } = typeof row === 'string' ? { label: row } : row;
+      const { label, right, image } = typeof row === 'string' ? { label: row } : row;
       const col = twoCols && i >= perCol ? 1 : 0;
       const x = 80 + col * 540;
       const y = top + (i - col * perCol) * rowH;
@@ -70,11 +70,23 @@ function listRows(rows, color, top, { mystery, marks = 'numbers' } = {}) {
           ? `<circle cx="${x + r}" cy="${cy}" r="${r}" fill="${color}"/><path d="M${x + r * 0.5} ${cy} l${r * 0.35} ${r * 0.38} l${r * 0.68} -${r * 0.75}" fill="none" stroke="#fff" stroke-width="${Math.max(3, r / 4)}" stroke-linecap="round" stroke-linejoin="round"/>`
           : `<circle cx="${x + r}" cy="${cy}" r="${r}" fill="${hot ? color : INK}"/><text x="${x + r}" y="${base}" text-anchor="middle" font-family="Rubik" font-weight="800" font-size="${Math.round(size * 0.85)}" fill="#fff">${i + 1}</text>`;
       const rightW = right ? widthOf(String(right), size) + 24 : 0;
+      const pic = image && !mystery ? rowH - 10 : 0;
+      const textX = x + r * 2 + 16 + (pic ? pic + 12 : 0);
       return `${mark}
-        <text x="${x + r * 2 + 16}" y="${base}" font-family="Rubik" font-weight="${hot ? 700 : 500}" font-size="${size}" fill="${mystery ? '#b5b0a8' : INK}">${esc(fit(label, size, colW - r * 2 - 30 - rightW))}</text>
+        ${pic ? picture(image, x + r * 2 + 14, y + 5, pic, 8) : ''}
+        <text x="${textX}" y="${base}" font-family="Rubik" font-weight="${hot ? 700 : 500}" font-size="${size}" fill="${mystery ? '#b5b0a8' : INK}">${esc(fit(label, size, colW - (textX - x) - rightW))}</text>
         ${right ? `<text x="${x + colW}" y="${base}" text-anchor="end" font-family="Rubik" font-weight="800" font-size="${size}" fill="${color}">${esc(right)}</text>` : ''}`;
     })
     .join('');
+}
+
+// A picture clipped to a rounded square. href is a data: URI.
+let clipN = 0;
+function picture(href, x, y, size, radius) {
+  const id = `c${clipN++}`;
+  return `<clipPath id="${id}"><rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${radius}"/></clipPath>
+    <image href="${href}" x="${x}" y="${y}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>
+    <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${radius}" fill="none" stroke="${INK}" stroke-width="2"/>`;
 }
 
 const TIER_COLORS = ['#ff6b6b', '#ffa94d', '#ffd43b', '#8ce99a', '#74c0fc', '#b197fc'];
@@ -101,25 +113,31 @@ function barRows(rows, color, top) {
   return rows
     .map((row, i) => {
       const y = top + i * rowH;
-      const w = Math.max(6, Math.round((row.pct / max) * 1040));
-      return `
-        ${row.mine ? `<circle cx="88" cy="${y + size * 0.62}" r="8" fill="${color}"/>` : ''}
-        <text x="${row.mine ? 106 : 80}" y="${y + size}" font-family="Rubik" font-weight="${row.mine ? 800 : 500}" font-size="${size}" fill="${INK}">${esc(fit(row.label + (row.mine ? ' (me)' : ''), size, 860))}</text>
+      const pic = row.image ? rowH - 8 : 0;
+      const x0 = 80 + (pic ? pic + 14 : 0);
+      const barW = 1040 - (x0 - 80);
+      const w = Math.max(6, Math.round((row.pct / max) * barW));
+      return `${pic ? picture(row.image, 80, y, pic, 8) : ''}
+        ${row.mine ? `<circle cx="${x0 + 8}" cy="${y + size * 0.62}" r="8" fill="${color}"/>` : ''}
+        <text x="${row.mine ? x0 + 26 : x0}" y="${y + size}" font-family="Rubik" font-weight="${row.mine ? 800 : 500}" font-size="${size}" fill="${INK}">${esc(fit(row.label + (row.mine ? ' (me)' : ''), size, barW - 180))}</text>
         <text x="1120" y="${y + size}" text-anchor="end" font-family="Rubik" font-weight="800" font-size="${size}" fill="${INK}">${row.pct}%</text>
-        <rect x="80" y="${y + size + 7}" width="1040" height="10" rx="5" fill="#ece7df"/>
-        <rect x="80" y="${y + size + 7}" width="${w}" height="10" rx="5" fill="${row.mine || i === 0 ? color : '#8a857d'}"/>`;
+        <rect x="${x0}" y="${y + size + 7}" width="${barW}" height="10" rx="5" fill="#ece7df"/>
+        <rect x="${x0}" y="${y + size + 7}" width="${w}" height="10" rx="5" fill="${row.mine || i === 0 ? color : '#8a857d'}"/>`;
     })
     .join('');
 }
 
 function bigBlock(card, color, top) {
-  const bigSize = card.big.length > 22 ? 56 : 72;
-  const bigLines = wrap(card.big, bigSize, 1040, 2);
-  const subLines = card.sub ? wrap(card.sub, 28, 1040, 3) : [];
+  const pic = card.image ? Math.min(300, 500 - top) : 0;
+  const textW = pic ? 1040 - pic - 40 : 1040;
+  const bigSize = card.big.length > (pic ? 14 : 22) ? 56 : 72;
+  const bigLines = wrap(card.big, bigSize, textW, 2);
+  const subLines = card.sub ? wrap(card.sub, 28, textW, 3) : [];
   const height = bigSize + (bigLines.length - 1) * bigSize * 1.05 + (subLines.length ? 52 + (subLines.length - 1) * 38 : 0);
   // sit the block in the middle of the space under the title
   let y = top + Math.max(0, (500 - top - height) / 2) + bigSize * 0.8;
-  let out = bigLines.map((l, i) => `<text x="80" y="${y + i * bigSize * 1.05}" font-family="Archivo Black" font-size="${bigSize}" fill="${color}">${esc(l)}</text>`).join('');
+  let out = pic ? picture(card.image, 1120 - pic, top + Math.max(0, (500 - top - pic) / 2), pic, 18) : '';
+  out += bigLines.map((l, i) => `<text x="80" y="${y + i * bigSize * 1.05}" font-family="Archivo Black" font-size="${bigSize}" fill="${color}">${esc(l)}</text>`).join('');
   y += (bigLines.length - 1) * bigSize * 1.05 + 52;
   if (subLines.length) {
     out += subLines

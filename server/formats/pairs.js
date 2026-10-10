@@ -52,7 +52,7 @@ export function pairsFormat({ min = 3, max = 20, maxLen = 60, noun = 'pair', kic
             const mine = result.picks[p.id];
             const s = stats.pairs[p.id];
             const share = mine === 'a' ? s.aPct : 100 - s.aPct;
-            return { label: `${p[mine].label} over ${p[mine === 'a' ? 'b' : 'a'].label}`, right: stats.count >= 3 ? `${share}%` : '' };
+            return { label: `${p[mine].label} over ${p[mine === 'a' ? 'b' : 'a'].label}`, image: p[mine].image, right: stats.count >= 3 ? `${share}%` : '' };
           }),
         };
       }

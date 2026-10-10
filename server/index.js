@@ -8,6 +8,7 @@ import { db, dataPath } from './db.js';
 import { formats } from './formats/index.js';
 import { BadInput, text, image } from './formats/util.js';
 import { renderCard } from './card.js';
+import { imageStore, searchImages } from './images.js';
 import { CATEGORIES, FORMATS, LIMITS, SITE_NAME } from '../shared/meta.js';
 
 const app = express();
@@ -216,19 +217,42 @@ app.get('/api/results/:id', (req, res) => {
   res.json({ id: row.play_id, result: JSON.parse(row.result), game, stats: crowdStats(game) });
 });
 
+const images = imageStore(uploadDir);
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: uploadDir,
-    filename: (req, file, cb) => cb(null, `${nanoid(14)}.${{ 'image/png': 'png', 'image/jpeg': 'jpg', 'image/gif': 'gif', 'image/webp': 'webp' }[file.mimetype]}`),
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => cb(null, ['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.mimetype)),
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(null, ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif', 'image/heic', 'image/heif'].includes(file.mimetype)),
 });
 
-app.post('/api/uploads', limit(80, 60 * 60 * 1000), upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'That file type isn’t supported. Try a JPG, PNG, GIF or WebP.' });
-  res.status(201).json({ url: `/uploads/${req.file.filename}` });
-});
+app.post(
+  '/api/uploads',
+  limit(150, 60 * 60 * 1000),
+  upload.single('image'),
+  wrap(async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'That file type isn’t supported. Try a JPG, PNG, GIF or WebP.' });
+    res.status(201).json({ url: await images.save(req.file.buffer, req.file.mimetype) });
+  }),
+);
+
+// Free picture search (Wikipedia, iTunes artwork, Openverse). No API keys needed.
+app.get(
+  '/api/image-search',
+  limit(300, 60 * 60 * 1000),
+  wrap(async (req, res) => {
+    const q = String(req.query.q ?? '').trim().slice(0, 100);
+    if (q.length < 2) return res.json({ results: [] });
+    res.json({ results: await searchImages(q, String(req.query.category ?? ''), { quick: req.query.quick === '1' }) });
+  }),
+);
+
+// Copy a search result onto our disk so it can't disappear or get hotlink-blocked later.
+app.post(
+  '/api/images/import',
+  limit(300, 60 * 60 * 1000),
+  wrap(async (req, res) => {
+    res.status(201).json({ url: await images.importRemote(String(req.body?.url ?? '')) });
+  }),
+);
 
 app.use('/uploads', express.static(uploadDir, { maxAge: '30d', immutable: true }));
 
@@ -245,33 +269,53 @@ function cachedCard(key, make) {
 
 const displayUrl = (req, p) => `${baseUrl(req).replace(/^https?:\/\//, '')}${p}`;
 
-app.get('/card/play/:slug.png', (req, res) => {
-  const row = findGame.get(req.params.slug);
-  if (!row) return res.sendStatus(404);
-  const game = rowToGame(row, { full: true });
-  const png = cachedCard(`g:${game.id}:${game.plays}`, () => {
-    const stats = crowdStats(game);
-    return renderCard({ game, card: formats[game.type].card(game, null, stats), url: displayUrl(req, `/play/${game.slug}`) });
-  });
-  res.type('png').set('Cache-Control', 'public, max-age=600').send(png);
-});
+// Swap image paths on a card for small inline JPEGs the renderer can draw.
+async function withPictures(card) {
+  const toData = async (src, size) => {
+    const buf = await images.cardThumb(src, size);
+    return buf ? `data:image/jpeg;base64,${buf.toString('base64')}` : null;
+  };
+  if (card.image) card.image = await toData(card.image, 320);
+  if (Array.isArray(card.rows)) {
+    card.rows = await Promise.all(card.rows.map(async (row) => (row && typeof row === 'object' && row.image ? { ...row, image: await toData(row.image, 120) } : row)));
+  }
+  return card;
+}
 
-app.get('/card/r/:id.png', (req, res) => {
-  const row = findPlay.get(req.params.id);
-  if (!row) return res.sendStatus(404);
-  const game = rowToGame(row, { full: true });
-  const png = cachedCard(`r:${row.play_id}`, () => {
-    const stats = crowdStats(game);
-    return renderCard({ game, card: formats[game.type].card(game, JSON.parse(row.result), stats), url: displayUrl(req, `/play/${game.slug}`) });
-  });
-  res.type('png').set('Cache-Control', 'public, max-age=86400').send(png);
-});
+async function cardFor(key, game, result, req) {
+  if (cardCache.has(key)) return cardCache.get(key);
+  const stats = crowdStats(game);
+  const card = await withPictures(formats[game.type].card(game, result, stats));
+  return cachedCard(key, () => renderCard({ game, card, url: displayUrl(req, `/play/${game.slug}`) }));
+}
+
+app.get(
+  '/card/play/:slug.png',
+  wrap(async (req, res) => {
+    const row = findGame.get(req.params.slug);
+    if (!row) return res.sendStatus(404);
+    const game = rowToGame(row, { full: true });
+    const png = await cardFor(`g:${game.id}:${game.plays}`, game, null, req);
+    res.type('png').set('Cache-Control', 'public, max-age=600').send(png);
+  }),
+);
+
+app.get(
+  '/card/r/:id.png',
+  wrap(async (req, res) => {
+    const row = findPlay.get(req.params.id);
+    if (!row) return res.sendStatus(404);
+    const game = rowToGame(row, { full: true });
+    const png = await cardFor(`r:${row.play_id}`, game, JSON.parse(row.result), req);
+    res.type('png').set('Cache-Control', 'public, max-age=86400').send(png);
+  }),
+);
 
 // ---------- errors ----------
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) return res.status(400).json({ error: 'That image is too big. 5 MB max.' });
+  if (err instanceof multer.MulterError) return res.status(400).json({ error: 'That image is too big. 8 MB max.' });
   if (err.status && err.status < 500) return res.status(err.status).json({ error: err.message });
   console.error(err);
   res.status(500).json({ error: 'Something broke on our end. Try again?' });

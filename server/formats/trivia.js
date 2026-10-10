@@ -11,7 +11,7 @@ export default {
       .filter((q) => q?.text?.trim())
       .map((q, i) => {
         const answers = (Array.isArray(q.answers) ? q.answers : [])
-          .map((a) => ({ id: okId(a?.id) ? a.id : nanoid(6), label: text(a?.label, 80, { required: false }) }))
+          .map((a) => ({ id: okId(a?.id) ? a.id : nanoid(6), label: text(a?.label, 80, { required: false }), image: image(a?.image) }))
           .filter((a) => a.label);
         if (answers.length < 2) throw new BadInput(`Question ${i + 1} needs at least 2 answers`);
         if (answers.length > 4) throw new BadInput(`Question ${i + 1} has too many answers (4 max)`);
@@ -69,6 +69,7 @@ export default {
         layout: 'big',
         big: `${result.score}/${result.total}. ${scoreQuip(result.score, result.total)}`,
         sub: stats.count >= 5 ? `Better than ${beat}% of people who took it. Can you beat that?` : 'Can you beat that?',
+        image: game.cover,
       };
     }
     return {
@@ -76,6 +77,7 @@ export default {
       layout: 'big',
       big: stats.count >= 5 ? `Average score: ${stats.avg}/${total}` : `${total} questions. No googling.`,
       sub: game.blurb || 'Think you know your stuff? Prove it.',
+      image: game.cover,
     };
   },
 

@@ -33,7 +33,7 @@ export default {
           .filter((a) => a?.label?.trim())
           .map((a) => {
             if (!ids.has(a.result)) throw new BadInput(`Every answer in question ${i + 1} needs a result to count towards`);
-            return { id: okId(a.id) ? a.id : nanoid(6), label: text(a.label, 80), result: a.result };
+            return { id: okId(a.id) ? a.id : nanoid(6), label: text(a.label, 80), image: image(a.image), result: a.result };
           });
         if (answers.length < 2 || answers.length > 4) throw new BadInput(`Question ${i + 1} needs 2 to 4 answers`);
         return { id: okId(q.id) ? q.id : nanoid(8), text: text(q.text, 160), image: image(q.image), answers };
@@ -69,9 +69,10 @@ export default {
         layout: 'big',
         big: outcome.label,
         sub: outcome.desc || 'Which one are you?',
+        image: outcome.image,
       };
     }
-    return { kicker: 'Which one are you?', layout: 'list', marks: 'checks', rows: game.data.results.map((r) => r.label) };
+    return { kicker: 'Which one are you?', layout: 'list', marks: 'checks', rows: game.data.results.map((r) => ({ label: r.label, image: r.image })) };
   },
 
   summary(game, result) {

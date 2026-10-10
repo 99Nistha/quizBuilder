@@ -1,4 +1,5 @@
 import { LIMITS } from '../../../shared/meta.js';
+import AutoPictures from './AutoPictures.jsx';
 import ImagePicker from './ImagePicker.jsx';
 
 let counter = 0;
@@ -33,20 +34,23 @@ export default function ItemsEditor({ items, onChange, min, max, noun = 'item', 
           <li key={it.id} className="item-row">
             <span className="item-n">{i + 1}</span>
             <input type="text" value={it.label} maxLength={LIMITS.label} placeholder={i === 0 ? placeholder : ''} onChange={(e) => update(it.id, { label: e.target.value })} onKeyDown={(e) => onKey(e, i)} />
-            <ImagePicker compact value={it.image} onChange={(image) => update(it.id, { image })} label="pic" />
+            <ImagePicker compact value={it.image} onChange={(image) => update(it.id, { image })} query={it.label} />
             <button type="button" className="item-x" onClick={() => remove(it.id)} disabled={items.length <= min} aria-label={`Remove ${it.label || 'item'}`}>
               ×
             </button>
           </li>
         ))}
       </ol>
-      {items.length < max && (
-        <button type="button" className="btn btn-outline btn-small" onClick={add}>
-          + Add another
-        </button>
-      )}
+      <div className="editor-actions">
+        {items.length < max && (
+          <button type="button" className="btn btn-outline btn-small" onClick={add}>
+            + Add another
+          </button>
+        )}
+        <AutoPictures entries={items.filter((it) => !it.image).map((it) => ({ key: it.id, label: it.label }))} onDone={(found) => onChange(items.map((it) => (found[it.id] ? { ...it, image: found[it.id] } : it)))} />
+      </div>
       <p className="hint">
-        {min} to {max} {noun}s. Pictures are optional but people love them.
+        {min} to {max} {noun}s. Pictures are optional but people love them. Tap the camera to search, upload or paste a link.
       </p>
     </fieldset>
   );
