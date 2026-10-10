@@ -3,7 +3,7 @@ import AutoPictures from '../components/AutoPictures.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
 import ItemFace from '../components/ItemFace.jsx';
 import { newItem } from '../components/ItemsEditor.jsx';
-import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
+import Same, { CrowdNote, crowdBefore, crowdReady } from '../components/Same.jsx';
 import { useLocked } from '../lib/editing.js';
 
 // Shared by "this or that" and "would you rather".
@@ -104,7 +104,7 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
     const [reveal, setReveal] = useState(false);
     const pair = pairs[i];
     const crowd = stats?.pairs?.[pair?.id];
-    const canReveal = crowdReady(stats) && crowd;
+    const canReveal = crowdBefore(stats) && crowd;
     const done = Object.keys(picks).length === pairs.length;
 
     useEffect(() => {

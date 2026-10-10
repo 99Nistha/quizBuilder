@@ -67,7 +67,7 @@ function Player({ game, stats, onDone, saving }) {
                 <>
                   <ItemFace item={item} size="xs" />
                   <span className="br-label">{item.label}</span>
-                  <Same pct={posOf[item.id]?.[i]} stats={stats} label="put it here" />
+                  <Same pct={posOf[item.id]?.[i]} stats={stats} label="put it here" during />
                 </>
               ) : (
                 <span className="br-empty">{done ? '' : 'put it here'}</span>

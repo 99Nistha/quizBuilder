@@ -1959,6 +1959,11 @@ button {
   color: #116b32;
 }
 
+.same-first {
+  background: #e8e3ff;
+  color: #4a33b8;
+}
+
 .same-few {
   background: #ffe0dc;
   color: #a3200f;

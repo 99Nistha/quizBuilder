@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { beatPct, scoreQuip } from '../../../shared/quips.js';
 import AnswerButton from '../components/AnswerButton.jsx';
 import QuestionsEditor, { newQuestion } from '../components/QuestionsEditor.jsx';
-import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
+import Same, { CrowdNote, crowdBefore, crowdReady } from '../components/Same.jsx';
 
 function Editor({ data, setData }) {
   return (
@@ -61,7 +61,7 @@ function Player({ game, stats, onDone, saving }) {
           <div className="q-after">
             <p className="q-verdict">
               {chosen === q.correct ? 'Yep!' : 'Nope.'}
-              {crowdReady(stats) && <span className="q-crowd">{stats.right[q.id]}% of people got this right</span>}
+              {crowdBefore(stats) && <span className="q-crowd">{stats.right[q.id]}% of people got this right</span>}
             </p>
             {q.note && <p className="q-note-text">{q.note}</p>}
             <button className="btn btn-ink" onClick={() => setI(i + 1)} autoFocus>
