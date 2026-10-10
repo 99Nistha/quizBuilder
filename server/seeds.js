@@ -10,6 +10,12 @@ const leaning = (data, shuffle) => {
 const pairs = (...list) => list.map(([a, b], i) => ({ id: `p${i + 1}`, a: { label: a }, b: { label: b } }));
 const splitPicks = (data) => ({ picks: Object.fromEntries(data.pairs.map((p, i) => [p.id, Math.random() < 0.3 + ((i * 37) % 50) / 100 ? 'a' : 'b'])) });
 
+let qn = 0;
+const q = (text, answers, correct, note = '') => {
+  qn += 1;
+  return { id: `q${qn}`, text, note, answers: answers.map((label, i) => ({ id: `q${qn}a${i}`, label })), correct: `q${qn}a${correct}` };
+};
+
 export const seeds = [
   {
     type: 'blind_ranking',
@@ -98,5 +104,31 @@ export const seeds = [
     category: 'movies',
     data: { items: items('The first 10 minutes of Up', 'Bing Bong in Inside Out', 'Jessie\u2019s song in Toy Story 2', 'Remember Me in Coco', 'The incinerator in Toy Story 3') },
     fakePlay: (data) => ({ pick: data.items[Math.floor(Math.random() ** 1.6 * data.items.length)].id }),
+  },
+  {
+    type: 'trivia',
+    slug: 'only-real-gamers-get-5',
+    title: 'Only real gamers get 5/5',
+    blurb: 'Retro edition. No googling, we can tell.',
+    category: 'gaming',
+    data: {
+      questions: [
+        q('What colour is Pac-Man?', ['Yellow', 'Red', 'Blue'], 0, 'He was originally going to be called Puck-Man.'),
+        q('Which company made the Game Boy?', ['Sega', 'Nintendo', 'Sony', 'Atari'], 1),
+        q('What is Mario\u2019s brother called?', ['Wario', 'Toad', 'Luigi'], 2),
+        q('In Tetris, how many blocks make up each piece?', ['3', '4', '5'], 1, 'That\u2019s where the name comes from: tetra = four.'),
+        q('Which game has a character called Master Chief?', ['Halo', 'Doom', 'Gears of War', 'Destiny'], 0),
+      ],
+    },
+    fakePlay: (data) => {
+      const answers = {};
+      let score = 0;
+      for (const qq of data.questions) {
+        const right = Math.random() < 0.7;
+        answers[qq.id] = right ? qq.correct : qq.answers.find((a) => a.id !== qq.correct).id;
+        if (right) score += 1;
+      }
+      return { answers, score, total: data.questions.length };
+    },
   },
 ];

@@ -57,6 +57,17 @@ export default function FormatArt({ type }) {
           <circle cx="98" cy="39" r="4" fill="#161616" />
         </svg>
       );
+    case 'trivia':
+      return (
+        <svg {...common}>
+          <rect x="14" y="10" width="92" height="22" rx="8" fill="#fff" stroke="#161616" strokeWidth="2.5" />
+          <text x="60" y="26" fontSize="13" fontWeight="800" textAnchor="middle" fill="#161616" fontFamily="Rubik">7 / 10</text>
+          <rect x="14" y="40" width="42" height="14" rx="7" fill="#1db954" stroke="#161616" strokeWidth="2" />
+          <rect x="64" y="40" width="42" height="14" rx="7" fill="#fff" stroke="#161616" strokeWidth="2" />
+          <rect x="14" y="60" width="42" height="14" rx="7" fill="#fff" stroke="#161616" strokeWidth="2" />
+          <rect x="64" y="60" width="42" height="14" rx="7" fill="#ff6b6b" stroke="#161616" strokeWidth="2" />
+        </svg>
+      );
     default:
       return (
         <svg {...common}>

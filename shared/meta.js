@@ -43,6 +43,12 @@ export const FORMATS = {
     color: '#1db954',
     verb: 'Vote',
   },
+  trivia: {
+    name: 'Trivia quiz',
+    pitch: 'Right or wrong answers, a score at the end, bragging rights forever.',
+    color: '#ff7a1a',
+    verb: 'Play',
+  },
 };
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));

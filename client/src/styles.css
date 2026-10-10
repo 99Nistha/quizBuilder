@@ -1285,6 +1285,269 @@ button {
   }
 }
 
+/* ---------- quizzes ---------- */
+
+.q-card {
+  background: #fff;
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  padding: 22px 20px;
+  animation: deal 0.3s ease;
+}
+
+.q-img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.q-text {
+  font-size: clamp(21px, 3.4vw, 26px);
+  line-height: 1.25;
+  margin: 0 0 18px;
+}
+
+.q-answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.answer {
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  background: var(--paper);
+  padding: 14px 16px;
+  font-weight: 700;
+  font-size: 17px;
+  text-align: left;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.answer:hover:not(:disabled) {
+  background: #fff4c2;
+  transform: translateY(-1px);
+}
+
+.answer:disabled {
+  cursor: default;
+  color: var(--ink);
+}
+
+.answer.right {
+  background: #c9f5d5;
+  border-color: #13893f;
+}
+
+.answer.wrong {
+  background: #ffd6d2;
+  border-color: #c92a1a;
+  animation: shake 0.3s ease;
+}
+
+.answer.dim {
+  opacity: 0.45;
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.q-after {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.q-verdict {
+  font-family: var(--display);
+  font-size: 24px;
+  margin: 0;
+}
+
+.q-note-text {
+  margin: 0 0 6px;
+  color: var(--muted);
+}
+
+.score-big {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-bottom: 4px;
+}
+
+.score-num {
+  font-family: var(--display);
+  font-size: 76px;
+  line-height: 1;
+  color: var(--fc, var(--red));
+}
+
+.score-num small {
+  font-size: 36px;
+  color: var(--ink);
+}
+
+.score-quip {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.q-review {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.q-review li {
+  display: flex;
+  gap: 12px;
+}
+
+.q-review strong,
+.q-review span {
+  display: block;
+}
+
+.q-review span {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.q-review em {
+  font-style: normal;
+  font-size: 14px;
+}
+
+.q-review-mark {
+  font-size: 18px !important;
+  font-weight: 800;
+  color: #13893f !important;
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.q-review .miss .q-review-mark {
+  color: #c92a1a !important;
+}
+
+.q-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  display: grid;
+  gap: 16px;
+}
+
+.q-edit {
+  background: var(--paper);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.q-head,
+.a-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.q-num {
+  font-family: var(--display);
+  font-size: 15px;
+  width: 30px;
+  flex-shrink: 0;
+}
+
+.q-head .q-input {
+  font-weight: 600;
+  background: #fff;
+}
+
+.a-list {
+  list-style: none;
+  padding: 0 0 0 38px;
+  margin: 8px 0 0;
+  display: grid;
+  gap: 6px;
+}
+
+.a-edit .q-input {
+  background: #fff;
+  padding: 8px 12px;
+}
+
+.a-correct {
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.a-correct input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.a-correct span {
+  display: inline-block;
+  width: 56px;
+  text-align: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 0;
+  border: 2px solid var(--line);
+  color: var(--muted);
+  background: #fff;
+}
+
+.a-correct.on span {
+  background: #1db954;
+  border-color: #1db954;
+  color: #fff;
+}
+
+.a-correct:focus-within span {
+  outline: 3px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.a-result {
+  max-width: 44%;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.q-foot {
+  padding: 8px 0 0 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.q-note {
+  background: #fff !important;
+  font-size: 15px;
+}
+
+.maker-tip {
+  margin: -10px 0 20px 4px;
+}
+
 /* ---------- results ---------- */
 
 .result {
@@ -1732,6 +1995,19 @@ button {
 
   .pick-row {
     gap: 6px;
+  }
+
+  .q-answers {
+    grid-template-columns: 1fr;
+  }
+
+  .a-list,
+  .q-foot {
+    padding-left: 0;
+  }
+
+  .score-num {
+    font-size: 60px;
   }
 
   .pick {

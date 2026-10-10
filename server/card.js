@@ -115,11 +115,14 @@ function barRows(rows, color, top) {
 function bigBlock(card, color, top) {
   const bigSize = card.big.length > 22 ? 56 : 72;
   const bigLines = wrap(card.big, bigSize, 1040, 2);
-  let y = top + bigSize;
+  const subLines = card.sub ? wrap(card.sub, 28, 1040, 3) : [];
+  const height = bigSize + (bigLines.length - 1) * bigSize * 1.05 + (subLines.length ? 52 + (subLines.length - 1) * 38 : 0);
+  // sit the block in the middle of the space under the title
+  let y = top + Math.max(0, (500 - top - height) / 2) + bigSize * 0.8;
   let out = bigLines.map((l, i) => `<text x="80" y="${y + i * bigSize * 1.05}" font-family="Archivo Black" font-size="${bigSize}" fill="${color}">${esc(l)}</text>`).join('');
   y += (bigLines.length - 1) * bigSize * 1.05 + 52;
-  if (card.sub) {
-    out += wrap(card.sub, 28, 1040, 3)
+  if (subLines.length) {
+    out += subLines
       .map((l, i) => `<text x="80" y="${y + i * 38}" font-family="Rubik" font-weight="500" font-size="28" fill="${INK}">${esc(l)}</text>`)
       .join('');
   }
