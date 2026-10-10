@@ -67,6 +67,12 @@ export const FORMATS = {
     color: '#161616',
     verb: 'Crown',
   },
+  rate_these: {
+    name: 'Rate these',
+    pitch: 'Score each thing out of 10. Find out if you\u2019re a harsh critic or a big softie.',
+    color: '#c2185b',
+    verb: 'Rate',
+  },
 };
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));

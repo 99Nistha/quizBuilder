@@ -186,4 +186,13 @@ export const seeds = [
       return { rounds };
     },
   },
+  {
+    type: 'rate_these',
+    slug: 'rate-these-fashion-trends',
+    title: 'Rate these 2010s fashion trends',
+    blurb: 'We were all there. Some of us still are.',
+    category: 'internet',
+    data: { items: items('Skinny jeans', 'Galaxy print leggings', 'Snapbacks', 'Infinity scarves', 'Chunky necklaces', 'Ugg boots') },
+    fakePlay: (data) => ({ ratings: Object.fromEntries(data.items.map((i, n) => [i.id, Math.max(1, Math.min(10, Math.round(7 - n * 0.8 + (Math.random() * 4 - 2))))])) }),
+  },
 ];

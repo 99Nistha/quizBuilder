@@ -104,6 +104,18 @@ export default function FormatArt({ type }) {
           <path d="M54 43l1.5-7 3 3 1.5-4 1.5 4 3-3 1.5 7z" fill="#161616" />
         </svg>
       );
+    case 'rate_these':
+      return (
+        <svg {...common}>
+          <rect x="30" y="6" width="60" height="40" rx="8" fill="#fff" stroke="#161616" strokeWidth="2.5" transform="rotate(-4 60 26)" />
+          <text x="60" y="34" fontSize="20" fontWeight="800" textAnchor="middle" fill="#161616" fontFamily="Rubik">
+            8/10
+          </text>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <circle key={i} cx={20 + i * 16} cy="64" r="6" fill={i === 4 ? '#ffd400' : '#fff'} stroke="#161616" strokeWidth="2" />
+          ))}
+        </svg>
+      );
     default:
       return (
         <svg {...common}>

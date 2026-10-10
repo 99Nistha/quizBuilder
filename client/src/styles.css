@@ -1790,6 +1790,71 @@ button {
   background: var(--yellow);
 }
 
+/* ---------- rate these ---------- */
+
+.rate .br-stage {
+  min-height: 0;
+  padding: 22px 16px;
+}
+
+.scale {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.scale-btn {
+  aspect-ratio: 1;
+  border: 2.5px solid var(--ink);
+  border-radius: 12px;
+  background: hsl(calc(var(--h) * 1deg) 85% 88%);
+  font-weight: 800;
+  font-size: 18px;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+
+.scale-btn:hover {
+  transform: translateY(-3px);
+  background: hsl(calc(var(--h) * 1deg) 85% 75%);
+}
+
+.scale-btn.on {
+  background: var(--ink);
+  color: #fff;
+}
+
+.scale-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 6px 2px 0;
+}
+
+.rated {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.rated li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rated-score {
+  font-family: var(--display);
+  font-size: 22px;
+  width: 44px;
+  text-align: right;
+  color: var(--fc, var(--red));
+}
+
 /* ---------- results ---------- */
 
 .result {
@@ -2241,6 +2306,10 @@ button {
 
   .q-answers {
     grid-template-columns: 1fr;
+  }
+
+  .scale {
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .tier-label {
