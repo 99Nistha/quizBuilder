@@ -49,7 +49,7 @@ export default function Home() {
               <br />
               <span className="squiggle">Start the argument.</span>
             </h1>
-            <p className="hero-sub">Blind rankings, quizzes, this-or-that and more. Make one in a few minutes, send it to the group chat, watch the chaos.</p>
+            <p className="hero-sub">Blind rankings, tier lists, brackets, quizzes and more. Make one in a few minutes, send it to the group chat, watch the chaos.</p>
           </div>
           <Pulse stats={data?.stats} />
         </div>
@@ -68,10 +68,6 @@ export default function Home() {
               <span>{f.pitch}</span>
             </Link>
           ))}
-          <div className="format format-soon">
-            <strong>More on the way</strong>
-            <span>Personality quizzes, tier lists, brackets, polls… we're building them one at a time.</span>
-          </div>
         </div>
       </section>
 

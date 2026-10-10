@@ -21,6 +21,10 @@ PUBLIC_URL=https://your-domain.com npm start   # serves everything on PORT (defa
 
 `PUBLIC_URL` is used for link previews and the URL printed on share cards. Data (SQLite + uploads) lives in `./data`, or wherever `DATA_DIR` points.
 
+## Formats
+
+Blind ranking, this or that, would you rather, poll (live results), trivia quiz, personality quiz, tier list, bracket, and rate these. Every one ends on a result page with its own link and a share card.
+
 ## How it fits together
 
 - `server/` Express + SQLite. `server/formats/*` holds the rules for each game type: validating a new game, validating a play, crowd stats, and what goes on the share card.

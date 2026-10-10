@@ -47,7 +47,8 @@ function firstImage(value) {
 
 // A few item names to tease on tiles that have no picture.
 function peekLabels(data) {
-  const list = data.items ?? data.options ?? data.questions ?? [];
+  if (data.pairs) return data.pairs.slice(0, 3).map((p) => `${p.a.label} or ${p.b.label}`);
+  const list = data.items ?? data.results ?? data.questions ?? [];
   return list.slice(0, 3).map((i) => i.label ?? i.text).filter(Boolean);
 }
 
