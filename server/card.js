@@ -173,7 +173,14 @@ export function cardSvg({ game, card, url }) {
   <text x="${80 + 18}" y="96" font-family="Rubik" font-weight="800" font-size="18" letter-spacing="1.5" fill="#fff">${esc(kicker)}</text>
   ${titleLines.map((l, i) => `<text x="80" y="${158 + i * 50}" font-family="Rubik" font-weight="800" font-size="44" fill="${INK}">${esc(l)}</text>`).join('')}
   ${body}
-  <text x="44" y="${H - 22}" font-family="Archivo Black" font-size="34" fill="#fff">${esc(SITE_NAME.toLowerCase())}</text>
+  <g transform="translate(36 ${H - 60}) scale(0.72)">
+    <ellipse cx="24" cy="17" rx="10" ry="13" transform="rotate(-25 24 17)" fill="#bfe3ff" stroke="${INK}" stroke-width="3"/>
+    <ellipse cx="40" cy="16" rx="9" ry="12" transform="rotate(20 40 16)" fill="#dff1ff" stroke="${INK}" stroke-width="3"/>
+    <ellipse cx="34" cy="40" rx="20" ry="15" fill="#ffb703" stroke="${INK}" stroke-width="3"/>
+    <path d="M30 26c-3 9-3 19 0 28M40 27c-3 8-3 18 0 26" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="15" cy="40" r="10" fill="${INK}"/><circle cx="12" cy="38" r="2.4" fill="#fff"/>
+  </g>
+  <text x="88" y="${H - 22}" font-family="Archivo Black" font-size="34" fill="#fff">${esc(SITE_NAME)}</text>
   <text x="${W - 44}" y="${H - 26}" text-anchor="end" font-family="Rubik" font-weight="700" font-size="24" fill="#fff">${esc(fit('Your turn: ' + url, 24, 820))}</text>
 </svg>`;
 }

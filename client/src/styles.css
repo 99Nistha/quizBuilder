@@ -4,7 +4,10 @@
   --cream: #fbf6ec;
   --line: #e7e0d3;
   --muted: #6d675e;
-  --red: #ee3322;
+  --red: #e0321c; /* errors only */
+  --honey: #ffb703;
+  --honey-deep: #e08600;
+  --navy: #1c2b4b;
   --yellow: #ffd400;
   --blue: #2f7bff;
   --radius: 16px;
@@ -109,8 +112,8 @@ button {
 }
 
 .btn-red {
-  background: var(--red);
-  color: #fff;
+  background: var(--honey);
+  color: var(--navy);
 }
 
 .btn-ink {
@@ -210,13 +213,31 @@ button {
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--display);
   font-size: 30px;
-  color: var(--red);
+  color: var(--navy);
   text-decoration: none;
   letter-spacing: -0.02em;
   position: relative;
   line-height: 1;
+}
+
+.logo-bee-mark {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.logo-word-b {
+  color: var(--honey-deep);
+}
+
+.logo-img {
+  height: 36px;
+  width: auto;
 }
 
 .logo-dot {
@@ -276,7 +297,7 @@ button {
 
 .footer strong {
   font-family: var(--display);
-  color: var(--red);
+  color: var(--navy);
   font-weight: 400;
 }
 
@@ -311,7 +332,7 @@ button {
 }
 
 .squiggle {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='10' viewBox='0 0 40 10'%3E%3Cpath d='M0 6 Q10 0 20 6 T40 6' fill='none' stroke='%23ee3322' stroke-width='3.5'/%3E%3C/svg%3E") repeat-x 0 100% / 40px 10px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='10' viewBox='0 0 40 10'%3E%3Cpath d='M0 6 Q10 0 20 6 T40 6' fill='none' stroke='%231c2b4b' stroke-width='3.5'/%3E%3C/svg%3E") repeat-x 0 100% / 40px 10px;
   padding-bottom: 8px;
 }
 
@@ -342,7 +363,7 @@ button {
   font-family: var(--display);
   font-size: 58px;
   line-height: 1;
-  color: var(--red);
+  color: var(--honey-deep);
 }
 
 .pulse-text {
@@ -603,8 +624,8 @@ button {
 
 .tile:hover .tile-title {
   text-decoration: underline;
-  text-decoration-color: var(--red);
-  text-decoration-thickness: 2px;
+  text-decoration-color: var(--honey);
+  text-decoration-thickness: 3px;
 }
 
 .tile-meta {
@@ -995,13 +1016,13 @@ button {
 }
 
 .br-slot:not(:disabled):hover {
-  border-color: var(--red);
+  border-color: var(--honey-deep);
   border-style: solid;
-  background: #fff4f2;
+  background: #fff8e6;
 }
 
 .br-slot:not(:disabled):hover .br-empty {
-  color: var(--red);
+  color: var(--honey-deep);
 }
 
 .br-slot:disabled {
@@ -1967,7 +1988,8 @@ button {
 }
 
 .ranked-row:first-child .br-n {
-  background: var(--red);
+  background: var(--honey);
+  color: var(--navy);
 }
 
 .ranked-label {
@@ -2285,7 +2307,7 @@ button {
 .toggle input {
   width: 20px;
   height: 20px;
-  accent-color: var(--red);
+  accent-color: var(--honey-deep);
 }
 
 .picker {
@@ -2497,7 +2519,7 @@ button {
 }
 
 .pic-busy {
-  outline: 3px solid var(--red);
+  outline: 3px solid var(--honey-deep);
   animation: blink 0.8s infinite;
 }
 
@@ -2526,6 +2548,83 @@ button {
   margin: 0;
   font-size: 12px;
   color: var(--muted);
+}
+
+/* picture ideas while typing */
+
+.item-row,
+.pair-edit {
+  flex-wrap: wrap;
+}
+
+/* list rows must never grow wider than their card (the picture strip scrolls instead) */
+.items,
+.pairs-edit {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.item-row,
+.pair-edit {
+  min-width: 0;
+}
+
+.item-row input[type='text'] {
+  flex: 1 1 0;
+  width: auto;
+}
+
+.suggest {
+  flex-basis: 100%;
+  min-width: 0;
+  max-width: 100%;
+  order: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0 4px 30px;
+  animation: fade 0.2s ease;
+}
+
+.q-edit .suggest {
+  padding-left: 38px;
+}
+
+.suggest-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.suggest-strip {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.suggest-pic {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--cream);
+}
+
+.suggest-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.suggest-pic:hover:not(:disabled) {
+  border-color: var(--ink);
+  transform: translateY(-2px);
 }
 
 /* answers and options with pictures */
@@ -2660,6 +2759,12 @@ button {
 
   .logo {
     font-size: 25px;
+    gap: 4px;
+  }
+
+  .logo-bee-mark {
+    width: 28px;
+    height: 28px;
   }
 
   .nav-link {
@@ -2689,6 +2794,16 @@ button {
 
   .q-answers-pics {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .suggest {
+    padding-left: 0;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .suggest-label {
+    flex-basis: 100%;
   }
 
   .dialog {

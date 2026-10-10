@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import PictureSuggestions from '../components/PictureSuggestions.jsx';
 import AutoPictures from '../components/AutoPictures.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
 import ItemFace from '../components/ItemFace.jsx';
@@ -11,7 +12,8 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
   const newPair = () => ({ id: newItem().id, a: { label: '', image: null }, b: { label: '', image: null } });
 
   function Editor({ data, setData }) {
-    const update = (id, side, patch) => setData({ ...data, pairs: data.pairs.map((p) => (p.id === id ? { ...p, [side]: { ...p[side], ...patch } } : p)) });
+    const update = (id, side, patch) => setData((d) => ({ ...d, pairs: d.pairs.map((p) => (p.id === id ? { ...p, [side]: { ...p[side], ...patch } } : p)) }));
+    const [typing, setTyping] = useState(null);
     const remove = (id) => setData({ ...data, pairs: data.pairs.filter((p) => p.id !== id) });
     const filled = data.pairs.filter((p) => p.a.label.trim() && p.b.label.trim()).length;
     const locked = useLocked();
@@ -38,6 +40,8 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
                     maxLength={maxLen}
                     placeholder={i === 0 ? placeholders[j] : ''}
                     onChange={(e) => update(p.id, side, { label: e.target.value })}
+                    onFocus={() => setTyping(`${p.id}:${side}`)}
+                    onBlur={() => setTyping((t) => (t === `${p.id}:${side}` ? null : t))}
                   />
                   <ImagePicker compact value={p[side].image} onChange={(image) => update(p.id, side, { image })} query={p[side].label} />
                 </div>
@@ -47,6 +51,12 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
                   ×
                 </button>
               )}
+              {!big &&
+                ['a', 'b'].map(
+                  (side) =>
+                    typing === `${p.id}:${side}` &&
+                    !p[side].image && <PictureSuggestions key={side} query={p[side].label} onPick={(image) => update(p.id, side, { image })} />,
+                )}
             </li>
           ))}
         </ol>

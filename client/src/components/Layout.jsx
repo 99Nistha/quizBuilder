@@ -1,5 +1,20 @@
 import { Link, NavLink } from 'react-router-dom';
-import { SITE_NAME } from '../../../shared/meta.js';
+import { BRAND, SITE_NAME } from '../../../shared/meta.js';
+import BeeMark from './BeeMark.jsx';
+
+export function Wordmark() {
+  if (BRAND.logoImage) return <img src={BRAND.logoImage} alt={SITE_NAME} className="logo-img" />;
+  const [a, b] = BRAND.wordmark ?? [SITE_NAME, ''];
+  return (
+    <>
+      <BeeMark />
+      <span>
+        {a}
+        <span className="logo-word-b">{b}</span>
+      </span>
+    </>
+  );
+}
 
 export default function Layout({ children }) {
   return (
@@ -7,8 +22,7 @@ export default function Layout({ children }) {
       <header className="topbar">
         <div className="wrap topbar-inner">
           <Link to="/" className="logo" aria-label={`${SITE_NAME} home`}>
-            {SITE_NAME.toLowerCase()}
-            <span className="logo-dot" aria-hidden />
+            <Wordmark />
           </Link>
           <nav className="nav">
             <NavLink to="/browse" className="nav-link nav-browse">
@@ -27,7 +41,7 @@ export default function Layout({ children }) {
       <footer className="footer">
         <div className="wrap footer-inner">
           <p>
-            <strong>{SITE_NAME.toLowerCase()}</strong> is made by humans who have strong feelings about pizza toppings.
+            <strong>{SITE_NAME}</strong> is made by humans who have strong feelings about pizza toppings.
           </p>
           <p className="footer-links">
             <Link to="/make">Make a game</Link>

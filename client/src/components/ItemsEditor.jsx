@@ -1,7 +1,9 @@
+import { useRef, useState } from 'react';
 import { LIMITS } from '../../../shared/meta.js';
 import { useLocked } from '../lib/editing.js';
 import AutoPictures from './AutoPictures.jsx';
 import ImagePicker from './ImagePicker.jsx';
+import PictureSuggestions from './PictureSuggestions.jsx';
 
 let counter = 0;
 export const newItem = (label = '') => ({ id: `n${Date.now().toString(36)}${(counter++).toString(36)}`, label, image: null });
@@ -10,6 +12,11 @@ export const newItem = (label = '') => ({ id: `n${Date.now().toString(36)}${(cou
 export default function ItemsEditor({ items, onChange, min, max, noun = 'item', placeholder = 'Type a thing', heading }) {
   const update = (id, patch) => onChange(items.map((it) => (it.id === id ? { ...it, ...patch } : it)));
   const remove = (id) => onChange(items.filter((it) => it.id !== id));
+  // pictures arrive after a network round trip; apply them to the latest list, not a stale one
+  const latest = useRef(update);
+  latest.current = update;
+  const setImage = (id) => (image) => latest.current(id, { image });
+  const [typing, setTyping] = useState(null);
   const add = () => items.length < max && onChange([...items, newItem()]);
 
   function onKey(e, i) {
@@ -35,13 +42,23 @@ export default function ItemsEditor({ items, onChange, min, max, noun = 'item', 
         {items.map((it, i) => (
           <li key={it.id} className="item-row">
             <span className="item-n">{i + 1}</span>
-            <input type="text" value={it.label} maxLength={LIMITS.label} placeholder={i === 0 ? placeholder : ''} onChange={(e) => update(it.id, { label: e.target.value })} onKeyDown={(e) => onKey(e, i)} />
-            <ImagePicker compact value={it.image} onChange={(image) => update(it.id, { image })} query={it.label} />
+            <input
+              type="text"
+              value={it.label}
+              maxLength={LIMITS.label}
+              placeholder={i === 0 ? placeholder : ''}
+              onChange={(e) => update(it.id, { label: e.target.value })}
+              onKeyDown={(e) => onKey(e, i)}
+              onFocus={() => setTyping(it.id)}
+              onBlur={() => setTyping((t) => (t === it.id ? null : t))}
+            />
+            <ImagePicker compact value={it.image} onChange={setImage(it.id)} query={it.label} />
             {!locked && (
               <button type="button" className="item-x" onClick={() => remove(it.id)} disabled={items.length <= min} aria-label={`Remove ${it.label || 'item'}`}>
                 ×
               </button>
             )}
+            {typing === it.id && !it.image && <PictureSuggestions query={it.label} onPick={setImage(it.id)} />}
           </li>
         ))}
       </ol>

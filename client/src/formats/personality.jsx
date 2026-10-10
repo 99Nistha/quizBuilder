@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import PictureSuggestions from '../components/PictureSuggestions.jsx';
 import AutoPictures from '../components/AutoPictures.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
 import { newItem } from '../components/ItemsEditor.jsx';
@@ -12,6 +13,10 @@ const newResult = () => ({ ...newItem(), desc: '' });
 
 function ResultsEditor({ results, onChange }) {
   const set = (id, patch) => onChange(results.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  const latest = useRef(set);
+  latest.current = set;
+  const setImage = (id) => (image) => latest.current(id, { image });
+  const [typing, setTyping] = useState(null);
   const locked = useLocked();
   return (
     <fieldset className="card-box">
@@ -25,14 +30,15 @@ function ResultsEditor({ results, onChange }) {
           <li key={r.id} className="q-edit">
             <div className="q-head">
               <span className="q-num">{String.fromCharCode(65 + i)}</span>
-              <input type="text" className="q-input" value={r.label} maxLength={60} placeholder={['Folklore', 'Reputation', '1989'][i] ?? 'Result'} onChange={(e) => set(r.id, { label: e.target.value })} />
-              <ImagePicker compact value={r.image} onChange={(image) => set(r.id, { image })} query={r.label} />
+              <input type="text" className="q-input" value={r.label} maxLength={60} placeholder={['Folklore', 'Reputation', '1989'][i] ?? 'Result'} onChange={(e) => set(r.id, { label: e.target.value })} onFocus={() => setTyping(r.id)} onBlur={() => setTyping((t) => (t === r.id ? null : t))} />
+              <ImagePicker compact value={r.image} onChange={setImage(r.id)} query={r.label} />
               {!locked && (
                 <button type="button" className="item-x" disabled={results.length <= 2} onClick={() => onChange(results.filter((x) => x.id !== r.id))} aria-label="Remove result">
                   ×
                 </button>
               )}
             </div>
+            {typing === r.id && !r.image && <PictureSuggestions query={r.label} onPick={setImage(r.id)} />}
             <div className="q-foot">
               <input type="text" className="q-input q-note" value={r.desc} maxLength={280} placeholder="A line or two about people who get this" onChange={(e) => set(r.id, { desc: e.target.value })} />
             </div>
