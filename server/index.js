@@ -36,14 +36,12 @@ const slugify = (s) =>
     .slice(0, 50)
     .replace(/-+$/, '');
 
-function firstImage(value) {
-  if (!value || typeof value !== 'object') return null;
-  if (typeof value.image === 'string' && value.image) return value.image;
-  for (const v of Object.values(value)) {
-    const found = firstImage(v);
-    if (found) return found;
-  }
-  return null;
+// Pictures used inside a game, in order, for the tile collage.
+function gameImages(value, out = []) {
+  if (!value || typeof value !== 'object' || out.length >= 4) return out;
+  if (typeof value.image === 'string' && value.image && !out.includes(value.image)) out.push(value.image);
+  for (const v of Object.values(value)) gameImages(v, out);
+  return out;
 }
 
 // A few item names to tease on tiles that have no picture.
@@ -63,7 +61,8 @@ function rowToGame(row, { full = false } = {}) {
     blurb: row.blurb,
     category: row.category,
     creator: row.creator,
-    thumb: row.cover || firstImage(data),
+    // a cover wins; otherwise a collage of up to four pictures from the game itself
+    thumbs: row.cover ? [row.cover] : gameImages(data).slice(0, 4),
     peek: peekLabels(data),
     plays: row.plays,
     createdAt: row.created_at,
@@ -109,11 +108,11 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 
 // ---------- api ----------
 
-const weekPlays = db.prepare('SELECT COUNT(*) AS n FROM plays WHERE created_at > ?');
+const weekPlays = db.prepare('SELECT COUNT(*) AS n FROM plays WHERE created_at > ? AND demo = 0');
 const gameCount = db.prepare('SELECT COUNT(*) AS n FROM games');
 const trendingQ = db.prepare(`
   SELECT g.*, COUNT(p.id) AS week FROM games g
-  JOIN plays p ON p.game_id = g.id AND p.created_at > ?
+  JOIN plays p ON p.game_id = g.id AND p.created_at > ? AND p.demo = 0
   GROUP BY g.id ORDER BY week DESC, g.plays DESC LIMIT ?`);
 const newestQ = db.prepare('SELECT * FROM games ORDER BY created_at DESC LIMIT ?');
 const catCounts = db.prepare('SELECT category, COUNT(*) AS n FROM games GROUP BY category');

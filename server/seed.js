@@ -1,15 +1,25 @@
 // Starter games so the homepage isn't empty on day one.
 //   npm run seed                 -> games only
 //   npm run seed -- --demo-plays -> also fake some plays, for local testing only
+//   npm run seed -- --clear-demo -> delete all the fake plays again
+//   npm run seed -- --no-pictures -> skip looking up pictures (needs internet)
 import { nanoid } from 'nanoid';
 import { db } from './db.js';
 import { formats } from './formats/index.js';
 import { seeds } from './seeds.js';
+import { fillStarterPictures } from './fillPictures.js';
 
 const demoPlays = process.argv.includes('--demo-plays');
+
+if (process.argv.includes('--clear-demo')) {
+  const { changes } = db.prepare('DELETE FROM plays WHERE demo = 1').run();
+  db.prepare('UPDATE games SET plays = (SELECT COUNT(*) FROM plays WHERE plays.game_id = games.id)').run();
+  console.log(`Removed ${changes} demo plays.`);
+  process.exit(0);
+}
 const insert = db.prepare(`INSERT OR IGNORE INTO games (id, slug, type, title, blurb, category, cover, creator, data, created_at)
   VALUES (@id, @slug, @type, @title, @blurb, @category, NULL, @creator, @data, @created_at)`);
-const insertPlay = db.prepare('INSERT INTO plays (id, game_id, result, created_at) VALUES (?, ?, ?, ?)');
+const insertPlay = db.prepare('INSERT INTO plays (id, game_id, result, created_at, demo) VALUES (?, ?, ?, ?, 1)');
 
 const shuffle = (a) => {
   a = [...a];
@@ -41,3 +51,8 @@ db.transaction(() => {
 })();
 
 console.log(`Added ${added} games${demoPlays ? ' (with demo plays)' : ''}.`);
+
+if (!process.argv.includes('--no-pictures')) {
+  console.log('Looking up pictures for the starter games…');
+  await fillStarterPictures();
+}

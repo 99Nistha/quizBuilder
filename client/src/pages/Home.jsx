@@ -5,31 +5,24 @@ import GameTile from '../components/GameTile.jsx';
 import { api } from '../lib/api.js';
 import { n, useAsync, useTitle } from '../lib/util.js';
 
-function Pulse({ stats }) {
-  // Under a few dozen plays a big number looks sad, so say something honest instead.
+// The real number of games finished in the last 7 days, plus what's actually hot.
+function Pulse({ stats, top }) {
   if (!stats) return <div className="pulse pulse-loading" />;
-  const busy = stats.playsThisWeek >= 50;
+  const n_ = stats.playsThisWeek;
   return (
     <div className="pulse">
-      {busy ? (
-        <>
-          <span className="pulse-num">{n(stats.playsThisWeek)}</span>
-          <span className="pulse-text">
-            games played this week.
-            <br />
-            Somebody out there is ranking Cars above Up right now.
-          </span>
-        </>
-      ) : (
-        <>
-          <span className="pulse-num">new</span>
-          <span className="pulse-text">
-            We just opened the doors.
-            <br />
-            Make something and get in early.
-          </span>
-        </>
-      )}
+      <span className="pulse-num">{n(n_)}</span>
+      <span className="pulse-text">
+        {n_ === 1 ? 'game' : 'games'} played this week.
+        <br />
+        {top ? (
+          <>
+            Most played right now: <Link to={`/play/${top.slug}`}>{top.title}</Link>
+          </>
+        ) : (
+          'Early days. Make something and get the ball rolling.'
+        )}
+      </span>
     </div>
   );
 }
@@ -51,7 +44,7 @@ export default function Home() {
             </h1>
             <p className="hero-sub">Blind rankings, tier lists, brackets, quizzes and more. Make one in a few minutes, send it to the group chat, watch the chaos.</p>
           </div>
-          <Pulse stats={data?.stats} />
+          <Pulse stats={data?.stats} top={data?.trending?.[0]} />
         </div>
       </section>
 

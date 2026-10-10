@@ -38,4 +38,9 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS games_cat ON games(category, created_at);
 `);
 
+// Plays made up by `npm run seed -- --demo-plays` are flagged so they never
+// count towards the public "played this week" number or trending.
+const playCols = db.prepare('PRAGMA table_info(plays)').all().map((c) => c.name);
+if (!playCols.includes('demo')) db.exec('ALTER TABLE plays ADD COLUMN demo INTEGER NOT NULL DEFAULT 0');
+
 export const dataPath = dataDir;
