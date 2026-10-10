@@ -2,7 +2,10 @@
 -- In Supabase: SQL Editor -> New query -> paste this whole file -> Run.
 -- Safe to run again; it only adds what's missing and replaces the functions.
 
+-- Supabase keeps pgcrypto (random bytes, hashing) in the "extensions" schema,
+-- which is why the functions below search both public and extensions.
 create extension if not exists pgcrypto;
+set search_path = public, extensions;
 
 -- ---------- tables ----------
 
@@ -53,7 +56,7 @@ revoke all on public.games, public.plays, public.hits from anon, authenticated;
 -- ---------- helpers (not callable from the site) ----------
 
 create or replace function public._limit(action text, max_per_hour int) returns void
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare
   ip text := coalesce(split_part((current_setting('request.headers', true)::json)->>'x-forwarded-for', ',', 1), 'unknown');
   k text := action || ':' || encode(digest(ip || to_char(now(), 'YYYY-MM-DD'), 'sha256'), 'hex');
@@ -103,7 +106,7 @@ begin
 end $$;
 
 create or replace function public._owned(p_slug text, p_key text) returns public.games
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare
   g games;
 begin
@@ -120,7 +123,7 @@ end $$;
 -- ---------- reading ----------
 
 create or replace function public.home() returns jsonb
-language sql stable security definer set search_path = public as $$
+language sql stable security definer set search_path = public, extensions as $$
   with week as (
     select game_id, count(*) as n from plays
     where created_at > now() - interval '7 days' and not demo
@@ -141,7 +144,7 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 create or replace function public.list_games(p_category text default null, p_type text default null, p_region text default null, p_sort text default 'new', p_page int default 0)
-returns jsonb language sql stable security definer set search_path = public as $$
+returns jsonb language sql stable security definer set search_path = public, extensions as $$
   with ranked as (
     select g, row_number() over (order by case when p_sort = 'top' then g.plays end desc nulls last, g.created_at desc) as rn
     from games g
@@ -156,7 +159,7 @@ $$;
 
 -- A game plus the latest picks, so the page can work out the crowd numbers.
 create or replace function public.get_game(p_slug text) returns jsonb
-language sql stable security definer set search_path = public as $$
+language sql stable security definer set search_path = public, extensions as $$
   select jsonb_build_object(
     'game', _game(g),
     'results', coalesce((select jsonb_agg(p.result) from (select result from plays where game_id = g.id order by created_at desc limit 5000) p), '[]'))
@@ -164,7 +167,7 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 create or replace function public.get_play(p_id text) returns jsonb
-language sql stable security definer set search_path = public as $$
+language sql stable security definer set search_path = public, extensions as $$
   select jsonb_build_object(
     'id', p.id,
     'result', p.result,
@@ -176,7 +179,7 @@ $$;
 -- ---------- writing ----------
 
 create or replace function public.create_game(p_type text, p_title text, p_blurb text, p_category text, p_region text, p_cover text, p_creator text, p_data jsonb, p_slug text)
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security definer set search_path = public, extensions as $$
 declare
   base text := left(regexp_replace(lower(coalesce(p_slug, '')), '[^a-z0-9-]+', '', 'g'), 50);
   v_slug text;
@@ -194,7 +197,7 @@ begin
 end $$;
 
 create or replace function public.add_play(p_slug text, p_result jsonb) returns jsonb
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare
   gid text;
   pid text;
@@ -211,7 +214,7 @@ begin
 end $$;
 
 create or replace function public.game_for_edit(p_slug text, p_key text) returns jsonb
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare
   g games := _owned(p_slug, p_key);
 begin
@@ -220,7 +223,7 @@ begin
 end $$;
 
 create or replace function public.update_game(p_slug text, p_key text, p_title text, p_blurb text, p_category text, p_region text, p_cover text, p_creator text, p_data jsonb)
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security definer set search_path = public, extensions as $$
 declare
   g games := _owned(p_slug, p_key);
 begin
@@ -235,7 +238,7 @@ begin
 end $$;
 
 create or replace function public.delete_game(p_slug text, p_key text) returns jsonb
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare
   g games := _owned(p_slug, p_key);
 begin

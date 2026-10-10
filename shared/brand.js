@@ -9,8 +9,8 @@ export const BRAND = {
   // Your Supabase project (Settings -> API). Both values are meant to be public:
   // the database only lets this key call Playbee's own functions.
   supabase: {
-    url: '',
-    anonKey: '',
+    url: 'https://plevhapxivgrwhpbfpaw.supabase.co',
+    anonKey: 'sb_publishable_1vWYwvqw9bJdAykUQZpi8g_3PD5wHRM',
   },
   // shown in the browser tab on the homepage and in link previews
   tagline: 'make the quiz, start the argument',
