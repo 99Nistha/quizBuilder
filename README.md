@@ -1,0 +1,52 @@
+# Quizbop
+
+Make-your-own BuzzFeed-style games: blind rankings, quizzes, this-or-that and friends. Anyone can make one, every game gets its own link, and every result turns into a share card.
+
+## Run it locally
+
+Needs Node 20+.
+
+```bash
+npm install
+npm run seed            # a few starter games (add `-- --demo-plays` to fake some plays for testing)
+npm run dev             # site on http://localhost:5317, api on :4317
+```
+
+Production:
+
+```bash
+npm run build
+PUBLIC_URL=https://your-domain.com npm start   # serves everything on PORT (default 4317)
+```
+
+`PUBLIC_URL` is used for link previews and the URL printed on share cards. Data (SQLite + uploads) lives in `./data`, or wherever `DATA_DIR` points.
+
+## How it fits together
+
+- `server/` Express + SQLite. `server/formats/*` holds the rules for each game type: validating a new game, validating a play, crowd stats, and what goes on the share card.
+- `server/card.js` draws the 1200×630 share image as SVG and turns it into a PNG (no headless browser).
+- `client/` React + Vite. `client/src/formats/*` has the editor, player and result screen for each game type.
+- `shared/meta.js` site name, categories and the list of formats, used by both sides.
+
+Pages:
+
+| URL | What |
+| --- | --- |
+| `/` | homepage: make, trending this week, categories, newest |
+| `/play/:slug` | play a game |
+| `/r/:id` | one person's result (this is what gets shared) |
+| `/make`, `/make/:type` | create |
+| `/browse/:category?` | browse, sort by newest / most played |
+| `/card/play/:slug.png`, `/card/r/:id.png` | share images |
+
+## Privacy
+
+Plays are stored as just "what was picked". No accounts, IPs or user ids are saved with them. The browser remembers which results are yours in localStorage.
+
+## Adding a format
+
+1. `server/formats/<name>.js` with `validate`, `validatePlay`, `aggregate`, `card`, `summary`, then register it in `server/formats/index.js`.
+2. `client/src/formats/<name>.jsx` with `blank`, `check`, `Editor`, `Player`, `Result`, `shareText`, then register it in `client/src/formats/index.js`.
+3. Add it to `FORMATS` in `shared/meta.js` and give it a doodle in `client/src/components/FormatArt.jsx`.
+
+Fonts: Rubik and Archivo Black, both SIL Open Font License (see `server/fonts`).
