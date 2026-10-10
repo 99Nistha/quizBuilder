@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { nanoid } from 'nanoid';
 import { db } from './db.js';
+import { BRAND } from '../shared/brand.js';
 
 export const hashKey = (key) => crypto.createHash('sha256').update(String(key)).digest('hex');
 
@@ -31,6 +32,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   }
   const { key, hash } = newEditKey();
   db.prepare('UPDATE games SET edit_key_hash = ? WHERE id = ?').run(hash, row.id);
-  const base = (process.env.PUBLIC_URL || 'http://localhost:5317').replace(/\/$/, '');
+  // --live prints a playbee.pro link; otherwise it's for your local dev site
+  const base = (process.env.PUBLIC_URL || (process.argv.includes('--live') ? BRAND.url : 'http://localhost:5317')).replace(/\/$/, '');
   console.log(`Edit link for "${row.title}" (keep it private):\n${base}/edit/${slug}#${key}`);
 }

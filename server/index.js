@@ -85,7 +85,8 @@ function crowdStats(game) {
   return formats[game.type].aggregate(game.data, results);
 }
 
-const baseUrl = (req) => process.env.PUBLIC_URL?.replace(/\/$/, '') || `${req.protocol}://${req.get('host')}`;
+const siteUrl = (process.env.PUBLIC_URL || (isProd ? BRAND.url : '')).replace(/\/$/, '');
+const baseUrl = (req) => siteUrl || `${req.protocol}://${req.get('host')}`;
 
 // Tiny in-memory limiter. Nothing is written to disk about who you are.
 const hits = new Map();

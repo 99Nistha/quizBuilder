@@ -1,6 +1,8 @@
-# Playhive
+# Playbee
 
-> To rename the site, edit `shared/brand.js` (name, tagline, description, colour), set `PUBLIC_URL` to your domain, and rebuild. Nothing else mentions the name.
+Live at **https://playbee.pro**.
+
+> To rename the site, edit `shared/brand.js` (name, domain, tagline, description, colour) and rebuild. Nothing else mentions the name.
 
 Make-your-own BuzzFeed-style games: blind rankings, quizzes, this-or-that and friends. Anyone can make one, every game gets its own link, and every result turns into a share card.
 
@@ -18,10 +20,10 @@ Production:
 
 ```bash
 npm run build
-PUBLIC_URL=https://your-domain.com npm start   # serves everything on PORT (default 4317)
+npm start   # serves everything on PORT (default 4317)
 ```
 
-`PUBLIC_URL` is used for link previews and the URL printed on share cards. Data (SQLite + uploads) lives in `./data`, or wherever `DATA_DIR` points.
+In production, share links and cards use https://playbee.pro (from `shared/brand.js`). Set `PUBLIC_URL` only to override it, e.g. for a staging copy. Data (SQLite + uploads) lives in `./data`, or wherever `DATA_DIR` points.
 
 ## Formats
 
@@ -37,7 +39,7 @@ Anything that can have a picture has a camera button: items, both sides of a pai
 
 "Find pictures for me" fills in every item that has a name but no picture yet. Picked search results are copied onto our own disk so they never break, and they show up on share cards too.
 
-Set `IMAGE_SEARCH_CONTACT` (your site URL or email) in production. Wikimedia asks API users to identify themselves and will rate limit you otherwise.
+Picture searches identify themselves to Wikimedia with https://playbee.pro, as Wikimedia asks; set `IMAGE_SEARCH_CONTACT` to use an email instead.
 
 Heads up on rights: Wikipedia and iTunes pictures of films, albums and characters are usually copyrighted (Wikipedia uses them under fair use). That's normal for fan-made quizzes, but for brand/sponsored games use pictures the brand provides.
 
