@@ -1,6 +1,9 @@
 // Shared by the server and the browser. Keep it plain JS.
 
-export const SITE_NAME = 'Quizbop';
+import { BRAND } from './brand.js';
+
+export { BRAND };
+export const SITE_NAME = BRAND.name;
 
 export const CATEGORIES = [
   { id: 'music', name: 'Music', color: '#ff5a8a' },
@@ -16,6 +19,17 @@ export const CATEGORIES = [
 ];
 
 export const categoryById = (id) => CATEGORIES.find((c) => c.id === id);
+
+// Where a game's topic comes from. 'global' = anywhere.
+export const REGIONS = [
+  { id: 'global', name: 'Everywhere', short: 'All' },
+  { id: 'us', name: 'United States', short: 'US' },
+  { id: 'uk', name: 'United Kingdom', short: 'UK' },
+  { id: 'in', name: 'India', short: 'India' },
+  { id: 'kr', name: 'Korea', short: 'Korea' },
+];
+
+export const regionById = (id) => REGIONS.find((r) => r.id === id);
 
 // Formats are added here as they get built.
 export const FORMATS = {

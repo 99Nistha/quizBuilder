@@ -11,7 +11,7 @@ export default function Layout({ children }) {
             <span className="logo-dot" aria-hidden />
           </Link>
           <nav className="nav">
-            <NavLink to="/browse" className="nav-link">
+            <NavLink to="/browse" className="nav-link nav-browse">
               Browse
             </NavLink>
             <NavLink to="/mine" className="nav-link">

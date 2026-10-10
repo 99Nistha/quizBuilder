@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SITE_NAME } from '../../../shared/meta.js';
+import { BRAND, SITE_NAME } from '../../../shared/meta.js';
 
 export const n = (x) => Number(x || 0).toLocaleString('en-US');
 
@@ -26,7 +26,7 @@ export function swatch(seed = '') {
 
 export function useTitle(title) {
   useEffect(() => {
-    document.title = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: make the quiz, start the argument`;
+    document.title = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME}: ${BRAND.tagline}`;
   }, [title]);
 }
 

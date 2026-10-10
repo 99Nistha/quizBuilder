@@ -10,7 +10,7 @@ import { BadInput, text, image } from './formats/util.js';
 import { renderCard } from './card.js';
 import { imageStore, searchImages } from './images.js';
 import { keyMatches, newEditKey } from './editKeys.js';
-import { CATEGORIES, FORMATS, LIMITS, SITE_NAME } from '../shared/meta.js';
+import { BRAND, CATEGORIES, FORMATS, LIMITS, REGIONS, SITE_NAME } from '../shared/meta.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4317;
@@ -61,6 +61,7 @@ function rowToGame(row, { full = false } = {}) {
     title: row.title,
     blurb: row.blurb,
     category: row.category,
+    region: row.region ?? 'global',
     creator: row.creator,
     // a cover wins; otherwise a collage of up to four pictures from the game itself
     thumbs: row.cover ? [row.cover] : gameImages(data).slice(0, 4),
@@ -117,15 +118,17 @@ const trendingQ = db.prepare(`
   GROUP BY g.id ORDER BY week DESC, g.plays DESC LIMIT ?`);
 const newestQ = db.prepare('SELECT * FROM games ORDER BY created_at DESC LIMIT ?');
 const catCounts = db.prepare('SELECT category, COUNT(*) AS n FROM games GROUP BY category');
+const regionCounts = db.prepare('SELECT region, COUNT(*) AS n FROM games GROUP BY region');
 
 app.get('/api/home', (req, res) => {
   const since = Date.now() - 7 * DAY;
   const counts = Object.fromEntries(catCounts.all().map((r) => [r.category, r.n]));
   res.json({
     stats: { playsThisWeek: weekPlays.get(since).n, games: gameCount.get().n },
-    trending: trendingQ.all(since, 8).map((r) => rowToGame(r)),
-    fresh: newestQ.all(8).map((r) => rowToGame(r)),
+    trending: trendingQ.all(since, 12).map((r) => rowToGame(r)),
+    fresh: newestQ.all(12).map((r) => rowToGame(r)),
     categories: CATEGORIES.map((c) => ({ ...c, count: counts[c.id] ?? 0 })),
+    regions: Object.fromEntries(regionCounts.all().map((r) => [r.region, r.n])),
   });
 });
 
@@ -139,6 +142,10 @@ app.get('/api/games', (req, res) => {
   if (req.query.type) {
     where.push('type = ?');
     args.push(String(req.query.type));
+  }
+  if (req.query.region) {
+    where.push('region = ?');
+    args.push(String(req.query.region));
   }
   const order = req.query.sort === 'top' ? 'plays DESC' : 'created_at DESC';
   const page = Math.max(0, Number(req.query.page) || 0);
@@ -156,8 +163,8 @@ app.get('/api/games/:slug', (req, res) => {
 });
 
 const insertGame = db.prepare(`
-  INSERT INTO games (id, slug, type, title, blurb, category, cover, creator, data, created_at, edit_key_hash)
-  VALUES (@id, @slug, @type, @title, @blurb, @category, @cover, @creator, @data, @created_at, @edit_key_hash)`);
+  INSERT INTO games (id, slug, type, title, blurb, category, region, cover, creator, data, created_at, edit_key_hash)
+  VALUES (@id, @slug, @type, @title, @blurb, @category, @region, @cover, @creator, @data, @created_at, @edit_key_hash)`);
 
 // Title, category etc. are shared by create and edit.
 function gameFields(body) {
@@ -166,6 +173,7 @@ function gameFields(body) {
     title: text(body.title, LIMITS.title, { field: 'The title' }),
     blurb: text(body.blurb, LIMITS.blurb, { required: false }),
     category: body.category,
+    region: REGIONS.some((r) => r.id === body.region) ? body.region : 'global',
     cover: image(body.cover),
     creator: text(body.creator, LIMITS.creator, { required: false }),
   };
@@ -217,7 +225,7 @@ app.get('/api/games/:slug/edit', limit(200, 60 * 60 * 1000), (req, res) => {
 });
 
 const updateGame = db.prepare(`
-  UPDATE games SET title = @title, blurb = @blurb, category = @category, cover = @cover,
+  UPDATE games SET title = @title, blurb = @blurb, category = @category, region = @region, cover = @cover,
     creator = @creator, data = @data, updated_at = @updated_at WHERE id = @id`);
 
 app.put(
@@ -412,7 +420,7 @@ if (isProd) {
   app.get('/play/:slug', (req, res) => {
     const row = findGame.get(req.params.slug);
     const base = baseUrl(req);
-    if (!row) return page(res.status(404), { title: SITE_NAME, description: 'Make and play silly quizzes.', url: base });
+    if (!row) return page(res.status(404), { title: SITE_NAME, description: BRAND.description, url: base });
     page(res, {
       title: `${row.title} | ${SITE_NAME}`,
       description: row.blurb || `A ${FORMATS[row.type].name.toLowerCase()} on ${SITE_NAME}. ${row.plays.toLocaleString('en-US')} plays so far.`,
@@ -424,7 +432,7 @@ if (isProd) {
   app.get('/r/:id', (req, res) => {
     const row = findPlay.get(req.params.id);
     const base = baseUrl(req);
-    if (!row) return page(res.status(404), { title: SITE_NAME, description: 'Make and play silly quizzes.', url: base });
+    if (!row) return page(res.status(404), { title: SITE_NAME, description: BRAND.description, url: base });
     const game = rowToGame(row, { full: true });
     page(res, {
       title: `${row.title} | ${SITE_NAME}`,
@@ -435,7 +443,7 @@ if (isProd) {
   });
 
   app.get('/{*splat}', (req, res) =>
-    page(res, { title: `${SITE_NAME}: make the quiz, start the argument`, description: 'Blind rankings, quizzes, this-or-that and more. Made by people, for people with opinions.', url: baseUrl(req) }),
+    page(res, { title: `${SITE_NAME}: ${BRAND.tagline}`, description: BRAND.description, url: baseUrl(req) }),
   );
 }
 

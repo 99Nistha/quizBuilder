@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { formatList } from '../../../shared/meta.js';
+import { REGIONS, formatList, regionById } from '../../../shared/meta.js';
 import FormatArt from '../components/FormatArt.jsx';
 import GameTile from '../components/GameTile.jsx';
+import Row from '../components/Row.jsx';
 import { api } from '../lib/api.js';
 import { n, useAsync, useTitle } from '../lib/util.js';
 
@@ -27,10 +29,44 @@ function Pulse({ stats, top }) {
   );
 }
 
+// Games from one part of the world, most played first.
+function AroundTheWorld({ counts }) {
+  const regions = REGIONS.filter((r) => r.id !== 'global' && counts?.[r.id]);
+  const [region, setRegion] = useState(null);
+  const active = region ?? regions[0]?.id;
+  const { data } = useAsync(() => (active ? api.games({ region: active, sort: 'top' }) : Promise.resolve({ games: [] })), [active]);
+  if (!regions.length) return null;
+
+  return (
+    <section className="wrap section">
+      <div className="section-head">
+        <h2>Around the world</h2>
+        <Link to={`/browse?region=${active}`} className="section-more">
+          More from {regionById(active)?.short} →
+        </Link>
+      </div>
+      <div className="cat-pick region-tabs">
+        {regions.map((r) => (
+          <button key={r.id} type="button" className={`chip ${r.id === active ? 'chip-on' : ''}`} onClick={() => setRegion(r.id)}>
+            {r.name}
+          </button>
+        ))}
+      </div>
+      <Row label={`Games from ${regionById(active)?.name}`}>
+        {(data?.games ?? []).map((g) => (
+          <GameTile key={g.id} game={g} />
+        ))}
+      </Row>
+    </section>
+  );
+}
+
 export default function Home() {
   useTitle();
   const { data } = useAsync(() => api.home(), []);
-  const trending = data?.trending?.length ? data.trending : data?.fresh ?? [];
+  // Real trending games first (with their rank), then fill the row with new ones.
+  const trendingIds = new Set((data?.trending ?? []).map((g) => g.id));
+  const row = [...(data?.trending ?? []), ...(data?.fresh ?? []).filter((g) => !trendingIds.has(g.id))].slice(0, 12);
 
   return (
     <>
@@ -50,6 +86,34 @@ export default function Home() {
 
       <section className="wrap section">
         <div className="section-head">
+          <h2>{data?.trending?.length ? 'Trending this week' : 'Fresh ones'}</h2>
+          <Link to="/browse?sort=top" className="section-more">
+            See all →
+          </Link>
+        </div>
+        {data ? (
+          row.length ? (
+            <Row label="Trending games">
+              {row.map((g, i) => (
+                <GameTile key={g.id} game={g} rank={trendingIds.has(g.id) ? i + 1 : undefined} />
+              ))}
+            </Row>
+          ) : (
+            <p className="empty">
+              Nothing here yet. <Link to="/make">Be the first →</Link>
+            </p>
+          )
+        ) : (
+          <Row label="Loading">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="tile tile-ghost" />
+            ))}
+          </Row>
+        )}
+      </section>
+
+      <section className="wrap section">
+        <div className="section-head">
           <h2>Make something</h2>
           <span className="section-note">Free, no account needed</span>
         </div>
@@ -64,33 +128,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="wrap section">
-        <div className="section-head">
-          <h2>{data?.trending?.length ? 'Trending this week' : 'Fresh ones'}</h2>
-          <Link to="/browse?sort=top" className="section-more">
-            See more →
-          </Link>
-        </div>
-        {data ? (
-          trending.length ? (
-            <div className="grid">
-              {trending.map((g, i) => (
-                <GameTile key={g.id} game={g} rank={data.trending.length ? i + 1 : undefined} />
-              ))}
-            </div>
-          ) : (
-            <p className="empty">
-              Nothing here yet. <Link to="/make">Be the first →</Link>
-            </p>
-          )
-        ) : (
-          <div className="grid">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="tile tile-ghost" />
-            ))}
-          </div>
-        )}
-      </section>
+      <AroundTheWorld counts={data?.regions} />
 
       <section className="wrap section">
         <div className="section-head">
@@ -106,7 +144,7 @@ export default function Home() {
         </div>
       </section>
 
-      {data?.trending?.length > 0 && data.fresh.length > 0 && (
+      {data?.fresh?.length > 0 && (
         <section className="wrap section">
           <div className="section-head">
             <h2>Just made</h2>
@@ -114,11 +152,11 @@ export default function Home() {
               All new →
             </Link>
           </div>
-          <div className="grid">
-            {data.fresh.slice(0, 4).map((g) => (
+          <Row label="Newest games">
+            {data.fresh.map((g) => (
               <GameTile key={g.id} game={g} />
             ))}
-          </div>
+          </Row>
         </section>
       )}
     </>

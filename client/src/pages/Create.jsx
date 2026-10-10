@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CATEGORIES, FORMATS, LIMITS } from '../../../shared/meta.js';
+import { CATEGORIES, FORMATS, LIMITS, REGIONS } from '../../../shared/meta.js';
 import ImagePicker from '../components/ImagePicker.jsx';
 import { formatUI } from '../formats/index.js';
 import { api } from '../lib/api.js';
@@ -35,6 +35,7 @@ export function GameForm({ type, initial, locked = false, onSave, onDelete }) {
     title: initial?.title ?? '',
     blurb: initial?.blurb ?? '',
     category: initial?.category ?? '',
+    region: initial?.region ?? 'global',
     creator: initial?.creator ?? '',
     cover: initial?.cover ?? null,
   }));
@@ -90,6 +91,18 @@ export function GameForm({ type, initial, locked = false, onSave, onDelete }) {
                 {CATEGORIES.map((c) => (
                   <button type="button" key={c.id} className={`chip ${meta.category === c.id ? 'chip-on' : ''}`} style={{ '--c': c.color }} onClick={() => setMeta((m) => ({ ...m, category: c.id }))}>
                     {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="field">
+              <span>
+                Where's it from? <em>helps people find local stuff</em>
+              </span>
+              <div className="cat-pick">
+                {REGIONS.map((r) => (
+                  <button type="button" key={r.id} className={`chip ${meta.region === r.id ? 'chip-on' : ''}`} onClick={() => setMeta((m) => ({ ...m, region: r.id }))}>
+                    {r.name}
                   </button>
                 ))}
               </div>

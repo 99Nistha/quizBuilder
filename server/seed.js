@@ -17,8 +17,8 @@ if (process.argv.includes('--clear-demo')) {
   console.log(`Removed ${changes} demo plays.`);
   process.exit(0);
 }
-const insert = db.prepare(`INSERT OR IGNORE INTO games (id, slug, type, title, blurb, category, cover, creator, data, created_at)
-  VALUES (@id, @slug, @type, @title, @blurb, @category, NULL, @creator, @data, @created_at)`);
+const insert = db.prepare(`INSERT OR IGNORE INTO games (id, slug, type, title, blurb, category, region, cover, creator, data, created_at)
+  VALUES (@id, @slug, @type, @title, @blurb, @category, @region, NULL, @creator, @data, @created_at)`);
 const insertPlay = db.prepare('INSERT INTO plays (id, game_id, result, created_at, demo) VALUES (?, ?, ?, ?, 1)');
 
 const shuffle = (a) => {
@@ -37,7 +37,7 @@ db.transaction(() => {
     if (!fmt) return;
     const data = fmt.validate(s.data);
     const id = `seed-${s.slug}`;
-    const info = insert.run({ id, slug: s.slug, type: s.type, title: s.title, blurb: s.blurb ?? '', category: s.category, creator: s.creator ?? '', data: JSON.stringify(data), created_at: Date.now() - n * 3_600_000 });
+    const info = insert.run({ id, slug: s.slug, type: s.type, title: s.title, blurb: s.blurb ?? '', category: s.category, region: s.region ?? 'global', creator: s.creator ?? '', data: JSON.stringify(data), created_at: Date.now() - n * 3_600_000 });
     if (!info.changes) return;
     added += 1;
     if (demoPlays && s.fakePlay) {

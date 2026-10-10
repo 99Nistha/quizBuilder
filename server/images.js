@@ -5,10 +5,11 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { nanoid } from 'nanoid';
 import { BadInput } from './formats/util.js';
+import { SITE_NAME } from '../shared/meta.js';
 
 // Wikimedia asks for a User-Agent with a way to contact the operator.
 // Set IMAGE_SEARCH_CONTACT to your site URL or email when you deploy.
-const UA = `Quizbop/0.1 (${process.env.IMAGE_SEARCH_CONTACT || 'https://github.com/99Nistha/quizBuilder'}) image search for user-made quizzes`;
+const UA = `${SITE_NAME.replace(/\W/g, '')}/0.1 (${process.env.IMAGE_SEARCH_CONTACT || 'https://github.com/99Nistha/quizBuilder'}) image search for user-made quizzes`;
 const MAX_BYTES = 8 * 1024 * 1024;
 
 export function imageStore(uploadDir) {

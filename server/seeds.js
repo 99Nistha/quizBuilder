@@ -20,7 +20,9 @@ const q = (text, answers, correct, note = '') => {
   return { id: `q${qn}`, text, note, answers: answers.map((label, i) => ({ id: `q${qn}a${i}`, label })), correct: `q${qn}a${correct}` };
 };
 
-export const seeds = [
+import { freshSeeds } from './seedsFresh.js';
+
+const firstBatch = [
   {
     type: 'blind_ranking',
     slug: 'blind-rank-pizza-toppings',
@@ -94,7 +96,15 @@ export const seeds = [
   {
     type: 'would_you_rather',
     slug: 'would-you-rather-travel-chaos',
-    pictures: {}, cover: 'Airport terminal',
+    cover: 'Airport terminal',
+    pictures: {
+      'Lose your luggage on day one': 'Baggage',
+      'Lose your phone on day one': 'Smartphone',
+      'Only eat at chain restaurants abroad': 'Fast food restaurant',
+      'Only eat street food, no exceptions': 'Street food',
+      'Sleep in an airport for one night': 'Airport terminal',
+      'Take a 30-hour bus instead': 'Coach (bus)',
+    },
     title: 'Would you rather: travel chaos edition',
     blurb: 'Every option is bad. Pick the least bad.',
     category: 'internet',
@@ -121,7 +131,14 @@ export const seeds = [
   {
     type: 'trivia',
     slug: 'only-real-gamers-get-5',
-    pictures: {}, cover: 'Pac-Man',
+    cover: 'Pac-Man',
+    pictures: {
+      'What colour is Pac-Man?': 'Arcade cabinet',
+      'Which company made the Game Boy?': 'Game Boy',
+      'What is Mario\u2019s brother called?': 'Super Mario Bros.',
+      'In Tetris, how many blocks make up each piece?': 'Tetris',
+      'Which game has a character called Master Chief?': 'Xbox (console)',
+    },
     title: 'Only real gamers get 5/5',
     blurb: 'Retro edition. No googling, we can tell.',
     category: 'gaming',
@@ -214,3 +231,6 @@ export const seeds = [
     fakePlay: (data) => ({ ratings: Object.fromEntries(data.items.map((i, n) => [i.id, Math.max(1, Math.min(10, Math.round(7 - n * 0.8 + (Math.random() * 4 - 2))))])) }),
   },
 ];
+
+// Newest batch first so it shows up as the most recent.
+export const seeds = [...freshSeeds, ...firstBatch];

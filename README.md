@@ -1,5 +1,7 @@
 # Quizbop
 
+> The name is a placeholder. To rename the site, edit `shared/brand.js` (name, tagline, description, colour), set `PUBLIC_URL` to your domain, and rebuild. Nothing else mentions the name.
+
 Make-your-own BuzzFeed-style games: blind rankings, quizzes, this-or-that and friends. Anyone can make one, every game gets its own link, and every result turns into a share card.
 
 ## Run it locally

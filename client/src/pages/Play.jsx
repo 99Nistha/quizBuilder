@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { FORMATS, categoryById } from '../../../shared/meta.js';
+import { FORMATS, categoryById, regionById } from '../../../shared/meta.js';
 import ShareBox from '../components/ShareBox.jsx';
 import { formatUI } from '../formats/index.js';
 import { api } from '../lib/api.js';
@@ -20,6 +20,11 @@ export function GameHeader({ game }) {
         <Link to={`/browse/${cat.id}`} className="pill pill-outline">
           {cat.name}
         </Link>
+        {game.region && game.region !== 'global' && (
+          <Link to={`/browse?region=${game.region}`} className="pill pill-outline">
+            {regionById(game.region)?.short}
+          </Link>
+        )}
       </p>
       <h1 className="game-title">{game.title}</h1>
       {game.blurb && <p className="game-blurb">{game.blurb}</p>}

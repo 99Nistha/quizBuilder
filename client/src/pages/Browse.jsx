@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { CATEGORIES, categoryById, formatList } from '../../../shared/meta.js';
+import { CATEGORIES, REGIONS, categoryById, formatList } from '../../../shared/meta.js';
 import GameTile from '../components/GameTile.jsx';
 import { api } from '../lib/api.js';
 import { useTitle } from '../lib/util.js';
@@ -10,6 +10,7 @@ export default function Browse() {
   const [params, setParams] = useSearchParams();
   const sort = params.get('sort') === 'top' ? 'top' : 'new';
   const type = params.get('type') || '';
+  const region = params.get('region') || '';
   const cat = categoryById(category);
   useTitle(cat ? cat.name : 'Browse');
 
@@ -22,6 +23,7 @@ export default function Browse() {
     const q = { sort, page };
     if (category) q.category = category;
     if (type) q.type = type;
+    if (region) q.region = region;
     api.games(q).then((res) => {
       if (!live) return;
       setGames((g) => (page === 0 ? res.games : [...(g ?? []), ...res.games]));
@@ -30,11 +32,11 @@ export default function Browse() {
     return () => {
       live = false;
     };
-  }, [category, sort, type, page]);
+  }, [category, sort, type, region, page]);
 
   useEffect(() => {
     setPage(0);
-  }, [category, sort, type]);
+  }, [category, sort, type, region]);
 
   const setParam = (key, value) => {
     const next = new URLSearchParams(params);
@@ -67,6 +69,14 @@ export default function Browse() {
               Most played
             </button>
           </div>
+          <select value={region} onChange={(e) => setParam('region', e.target.value)} className="select" aria-label="Where from">
+            <option value="">Anywhere</option>
+            {REGIONS.filter((r) => r.id !== 'global').map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
+            ))}
+          </select>
           <select value={type} onChange={(e) => setParam('type', e.target.value)} className="select" aria-label="Format">
             <option value="">All formats</option>
             {formatList().map((f) => (

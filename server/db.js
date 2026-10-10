@@ -46,5 +46,6 @@ if (!playCols.includes('demo')) db.exec('ALTER TABLE plays ADD COLUMN demo INTEG
 const gameCols = db.prepare('PRAGMA table_info(games)').all().map((c) => c.name);
 if (!gameCols.includes('edit_key_hash')) db.exec('ALTER TABLE games ADD COLUMN edit_key_hash TEXT');
 if (!gameCols.includes('updated_at')) db.exec('ALTER TABLE games ADD COLUMN updated_at INTEGER');
+if (!gameCols.includes('region')) db.exec("ALTER TABLE games ADD COLUMN region TEXT NOT NULL DEFAULT 'global'");
 
 export const dataPath = dataDir;
