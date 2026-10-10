@@ -1,3 +1,4 @@
+import { useLocked } from '../lib/editing.js';
 import ImagePicker from './ImagePicker.jsx';
 import { newItem } from './ItemsEditor.jsx';
 
@@ -16,6 +17,7 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
   const setQ = (id, patch) => onChange(questions.map((q) => (q.id === id ? { ...q, ...patch } : q)));
   const setA = (q, aid, patch) => setQ(q.id, { answers: q.answers.map((a) => (a.id === aid ? { ...a, ...patch } : a)) });
   const namedResults = results;
+  const locked = useLocked();
 
   return (
     <fieldset className="card-box">
@@ -32,23 +34,25 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
               <span className="q-num">Q{i + 1}</span>
               <input type="text" className="q-input" value={q.text} maxLength={160} placeholder={i === 0 ? (mode === 'trivia' ? 'Which planet has the most moons?' : 'Pick a Sunday activity') : 'Question'} onChange={(e) => setQ(q.id, { text: e.target.value })} />
               <ImagePicker compact value={q.image} onChange={(image) => setQ(q.id, { image })} query={q.text} />
-              <button type="button" className="item-x" disabled={questions.length <= min} onClick={() => onChange(questions.filter((x) => x.id !== q.id))} aria-label="Remove question">
-                ×
-              </button>
+              {!locked && (
+                <button type="button" className="item-x" disabled={questions.length <= min} onClick={() => onChange(questions.filter((x) => x.id !== q.id))} aria-label="Remove question">
+                  ×
+                </button>
+              )}
             </div>
             <ul className="a-list">
               {q.answers.map((a, j) => (
                 <li key={a.id} className="a-edit">
                   {mode === 'trivia' && (
                     <label className={`a-correct ${q.correct === a.id ? 'on' : ''}`} title="This is the right answer">
-                      <input type="radio" name={`c-${q.id}`} checked={q.correct === a.id} onChange={() => setQ(q.id, { correct: a.id })} />
+                      <input type="radio" name={`c-${q.id}`} checked={q.correct === a.id} disabled={locked} onChange={() => setQ(q.id, { correct: a.id })} />
                       <span>{q.correct === a.id ? '✓ right' : 'right?'}</span>
                     </label>
                   )}
                   <input type="text" className="q-input" value={a.label} maxLength={80} placeholder={`Answer ${j + 1}`} onChange={(e) => setA(q, a.id, { label: e.target.value })} />
                   <ImagePicker compact value={a.image} onChange={(image) => setA(q, a.id, { image })} query={a.label} />
                   {mode === 'personality' && (
-                    <select className="select a-result" value={a.result ?? ''} onChange={(e) => setA(q, a.id, { result: e.target.value || null })} aria-label="Counts towards">
+                    <select className="select a-result" disabled={locked} value={a.result ?? ''} onChange={(e) => setA(q, a.id, { result: e.target.value || null })} aria-label="Counts towards">
                       <option value="">counts towards…</option>
                       {results.map((r, k) => (
                         <option key={r.id} value={r.id}>
@@ -57,14 +61,14 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
                       ))}
                     </select>
                   )}
-                  <button type="button" className="item-x" disabled={q.answers.length <= 2} onClick={() => setQ(q.id, { answers: q.answers.filter((x) => x.id !== a.id), correct: q.correct === a.id ? null : q.correct })} aria-label="Remove answer">
+                  {!locked && <button type="button" className="item-x" disabled={q.answers.length <= 2} onClick={() => setQ(q.id, { answers: q.answers.filter((x) => x.id !== a.id), correct: q.correct === a.id ? null : q.correct })} aria-label="Remove answer">
                     ×
-                  </button>
+                  </button>}
                 </li>
               ))}
             </ul>
             <div className="q-foot">
-              {q.answers.length < 4 && (
+              {!locked && q.answers.length < 4 && (
                 <button type="button" className="link-btn" onClick={() => setQ(q.id, { answers: [...q.answers, { id: newItem().id, label: '', result: null, image: null }] })}>
                   + another answer
                 </button>
@@ -74,7 +78,7 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
           </li>
         ))}
       </ol>
-      {questions.length < max && (
+      {!locked && questions.length < max && (
         <button type="button" className="btn btn-outline btn-small" onClick={() => {
             const q = newQuestion(mode === 'trivia' ? 3 : Math.min(4, Math.max(2, namedResults.length)));
             if (mode === 'personality') q.answers = q.answers.map((a, i) => ({ ...a, result: namedResults[i]?.id ?? null }));

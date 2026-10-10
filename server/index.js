@@ -9,6 +9,7 @@ import { formats } from './formats/index.js';
 import { BadInput, text, image } from './formats/util.js';
 import { renderCard } from './card.js';
 import { imageStore, searchImages } from './images.js';
+import { keyMatches, newEditKey } from './editKeys.js';
 import { CATEGORIES, FORMATS, LIMITS, SITE_NAME } from '../shared/meta.js';
 
 const app = express();
@@ -155,8 +156,34 @@ app.get('/api/games/:slug', (req, res) => {
 });
 
 const insertGame = db.prepare(`
-  INSERT INTO games (id, slug, type, title, blurb, category, cover, creator, data, created_at)
-  VALUES (@id, @slug, @type, @title, @blurb, @category, @cover, @creator, @data, @created_at)`);
+  INSERT INTO games (id, slug, type, title, blurb, category, cover, creator, data, created_at, edit_key_hash)
+  VALUES (@id, @slug, @type, @title, @blurb, @category, @cover, @creator, @data, @created_at, @edit_key_hash)`);
+
+// Title, category etc. are shared by create and edit.
+function gameFields(body) {
+  if (!CATEGORIES.some((c) => c.id === body.category)) throw new BadInput('Pick a category');
+  return {
+    title: text(body.title, LIMITS.title, { field: 'The title' }),
+    blurb: text(body.blurb, LIMITS.blurb, { required: false }),
+    category: body.category,
+    cover: image(body.cover),
+    creator: text(body.creator, LIMITS.creator, { required: false }),
+  };
+}
+
+// The skeleton of a game: every id and every "which one is right" link,
+// without the words and pictures. Once people have played, this can't change,
+// or their results would point at things that no longer exist.
+function shape(value) {
+  if (Array.isArray(value)) return value.map(shape);
+  if (!value || typeof value !== 'object') return value;
+  const out = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (['label', 'image', 'desc', 'note', 'text', 'shuffle'].includes(k)) continue;
+    out[k] = k === 'tiers' && Array.isArray(v) ? v.length : shape(v);
+  }
+  return out;
+}
 
 app.post(
   '/api/games',
@@ -165,24 +192,57 @@ app.post(
     const body = req.body ?? {};
     const format = formats[body.type];
     if (!format) throw new BadInput('Pick a game type');
-    if (!CATEGORIES.some((c) => c.id === body.category)) throw new BadInput('Pick a category');
-    const title = text(body.title, LIMITS.title, { field: 'The title' });
+    const fields = gameFields(body);
     const data = format.validate(body.data);
     const id = nanoid(12);
-    const slug = `${slugify(title) || 'game'}-${shortId()}`;
-    insertGame.run({
-      id,
-      slug,
-      type: body.type,
-      title,
-      blurb: text(body.blurb, LIMITS.blurb, { required: false }),
-      category: body.category,
-      cover: image(body.cover),
-      creator: text(body.creator, LIMITS.creator, { required: false }),
-      data: JSON.stringify(data),
-      created_at: Date.now(),
-    });
-    res.status(201).json({ slug });
+    const slug = `${slugify(fields.title) || 'game'}-${shortId()}`;
+    const { key, hash } = newEditKey();
+    insertGame.run({ id, slug, type: body.type, ...fields, data: JSON.stringify(data), created_at: Date.now(), edit_key_hash: hash });
+    res.status(201).json({ slug, editKey: key });
+  }),
+);
+
+// ---------- editing (needs the game's edit key) ----------
+
+function ownedGame(req) {
+  const row = findGame.get(req.params.slug);
+  if (!row) throw Object.assign(new Error("Couldn't find that one"), { status: 404 });
+  if (!keyMatches(row, req.get('x-edit-key'))) throw Object.assign(new Error("That edit link doesn't work for this game."), { status: 403 });
+  return row;
+}
+
+app.get('/api/games/:slug/edit', limit(200, 60 * 60 * 1000), (req, res) => {
+  const row = ownedGame(req);
+  res.json({ game: rowToGame(row, { full: true }), locked: row.plays > 0 });
+});
+
+const updateGame = db.prepare(`
+  UPDATE games SET title = @title, blurb = @blurb, category = @category, cover = @cover,
+    creator = @creator, data = @data, updated_at = @updated_at WHERE id = @id`);
+
+app.put(
+  '/api/games/:slug',
+  limit(120, 60 * 60 * 1000),
+  wrap((req, res) => {
+    const row = ownedGame(req);
+    const body = req.body ?? {};
+    const fields = gameFields(body);
+    const data = formats[row.type].validate(body.data);
+    if (row.plays > 0 && JSON.stringify(shape(data)) !== JSON.stringify(shape(JSON.parse(row.data)))) {
+      throw new BadInput("People have already played this, so you can change names, pictures and details but not add or remove things.");
+    }
+    updateGame.run({ id: row.id, ...fields, data: JSON.stringify(data), updated_at: Date.now() });
+    res.json({ slug: row.slug });
+  }),
+);
+
+app.delete(
+  '/api/games/:slug',
+  limit(60, 60 * 60 * 1000),
+  wrap((req, res) => {
+    const row = ownedGame(req);
+    db.prepare('DELETE FROM games WHERE id = ?').run(row.id);
+    res.json({ deleted: true });
   }),
 );
 
@@ -294,7 +354,7 @@ app.get(
     const row = findGame.get(req.params.slug);
     if (!row) return res.sendStatus(404);
     const game = rowToGame(row, { full: true });
-    const png = await cardFor(`g:${game.id}:${game.plays}`, game, null, req);
+    const png = await cardFor(`g:${game.id}:${game.plays}:${row.updated_at ?? 0}`, game, null, req);
     res.type('png').set('Cache-Control', 'public, max-age=600').send(png);
   }),
 );
@@ -305,7 +365,7 @@ app.get(
     const row = findPlay.get(req.params.id);
     if (!row) return res.sendStatus(404);
     const game = rowToGame(row, { full: true });
-    const png = await cardFor(`r:${row.play_id}`, game, JSON.parse(row.result), req);
+    const png = await cardFor(`r:${row.play_id}:${row.updated_at ?? 0}`, game, JSON.parse(row.result), req);
     res.type('png').set('Cache-Control', 'public, max-age=86400').send(png);
   }),
 );
@@ -356,7 +416,7 @@ if (isProd) {
     page(res, {
       title: `${row.title} | ${SITE_NAME}`,
       description: row.blurb || `A ${FORMATS[row.type].name.toLowerCase()} on ${SITE_NAME}. ${row.plays.toLocaleString('en-US')} plays so far.`,
-      image: `${base}/card/play/${row.slug}.png?v=${row.plays}`,
+      image: `${base}/card/play/${row.slug}.png?v=${row.plays}-${row.updated_at ?? 0}`,
       url: `${base}/play/${row.slug}`,
     });
   });

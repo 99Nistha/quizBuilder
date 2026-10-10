@@ -5,12 +5,14 @@ import { newItem } from '../components/ItemsEditor.jsx';
 import AnswerButton from '../components/AnswerButton.jsx';
 import QuestionsEditor, { newQuestion } from '../components/QuestionsEditor.jsx';
 import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
+import { useLocked } from '../lib/editing.js';
 import { Bars } from './poll.jsx';
 
 const newResult = () => ({ ...newItem(), desc: '' });
 
 function ResultsEditor({ results, onChange }) {
   const set = (id, patch) => onChange(results.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  const locked = useLocked();
   return (
     <fieldset className="card-box">
       <legend className="card-legend">
@@ -25,9 +27,11 @@ function ResultsEditor({ results, onChange }) {
               <span className="q-num">{String.fromCharCode(65 + i)}</span>
               <input type="text" className="q-input" value={r.label} maxLength={60} placeholder={['Folklore', 'Reputation', '1989'][i] ?? 'Result'} onChange={(e) => set(r.id, { label: e.target.value })} />
               <ImagePicker compact value={r.image} onChange={(image) => set(r.id, { image })} query={r.label} />
-              <button type="button" className="item-x" disabled={results.length <= 2} onClick={() => onChange(results.filter((x) => x.id !== r.id))} aria-label="Remove result">
-                ×
-              </button>
+              {!locked && (
+                <button type="button" className="item-x" disabled={results.length <= 2} onClick={() => onChange(results.filter((x) => x.id !== r.id))} aria-label="Remove result">
+                  ×
+                </button>
+              )}
             </div>
             <div className="q-foot">
               <input type="text" className="q-input q-note" value={r.desc} maxLength={280} placeholder="A line or two about people who get this" onChange={(e) => set(r.id, { desc: e.target.value })} />
@@ -36,7 +40,7 @@ function ResultsEditor({ results, onChange }) {
         ))}
       </ol>
       <div className="editor-actions">
-        {results.length < 8 && (
+        {!locked && results.length < 8 && (
           <button type="button" className="btn btn-outline btn-small" onClick={() => onChange([...results, newResult()])}>
             + Add a result
           </button>

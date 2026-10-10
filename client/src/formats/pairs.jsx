@@ -4,6 +4,7 @@ import ImagePicker from '../components/ImagePicker.jsx';
 import ItemFace from '../components/ItemFace.jsx';
 import { newItem } from '../components/ItemsEditor.jsx';
 import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
+import { useLocked } from '../lib/editing.js';
 
 // Shared by "this or that" and "would you rather".
 export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big, ...copy }) {
@@ -13,6 +14,7 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
     const update = (id, side, patch) => setData({ ...data, pairs: data.pairs.map((p) => (p.id === id ? { ...p, [side]: { ...p[side], ...patch } } : p)) });
     const remove = (id) => setData({ ...data, pairs: data.pairs.filter((p) => p.id !== id) });
     const filled = data.pairs.filter((p) => p.a.label.trim() && p.b.label.trim()).length;
+    const locked = useLocked();
 
     return (
       <fieldset className="card-box">
@@ -40,14 +42,16 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
                   <ImagePicker compact value={p[side].image} onChange={(image) => update(p.id, side, { image })} query={p[side].label} />
                 </div>
               ))}
-              <button type="button" className="item-x" onClick={() => remove(p.id)} disabled={data.pairs.length <= min} aria-label="Remove">
-                ×
-              </button>
+              {!locked && (
+                <button type="button" className="item-x" onClick={() => remove(p.id)} disabled={data.pairs.length <= min} aria-label="Remove">
+                  ×
+                </button>
+              )}
             </li>
           ))}
         </ol>
         <div className="editor-actions">
-          {data.pairs.length < max && (
+          {!locked && data.pairs.length < max && (
             <button type="button" className="btn btn-outline btn-small" onClick={() => setData({ ...data, pairs: [...data.pairs, newPair()] })}>
               + Add another
             </button>

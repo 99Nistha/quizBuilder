@@ -14,6 +14,9 @@ export default function Layout({ children }) {
             <NavLink to="/browse" className="nav-link">
               Browse
             </NavLink>
+            <NavLink to="/mine" className="nav-link">
+              My games
+            </NavLink>
             <Link to="/make" className="btn btn-small btn-red">
               Make one
             </Link>

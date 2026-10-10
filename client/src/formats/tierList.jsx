@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react';
 import ItemFace from '../components/ItemFace.jsx';
 import ItemsEditor, { newItem } from '../components/ItemsEditor.jsx';
 import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
+import { useLocked } from '../lib/editing.js';
 import { shuffle } from '../lib/util.js';
 
 const TIER_COLORS = ['#ff6b6b', '#ffa94d', '#ffd43b', '#8ce99a', '#74c0fc', '#b197fc'];
 const DEFAULT_TIERS = ['S', 'A', 'B', 'C', 'D'];
 
 function Editor({ data, setData }) {
+  const locked = useLocked();
   const setTier = (i, value) => setData({ ...data, tiers: data.tiers.map((t, j) => (j === i ? value : t)) });
   return (
     <>
@@ -18,12 +20,12 @@ function Editor({ data, setData }) {
           {data.tiers.map((t, i) => (
             <input key={i} value={t} maxLength={12} onChange={(e) => setTier(i, e.target.value)} style={{ background: TIER_COLORS[i] }} aria-label={`Tier ${i + 1} name`} />
           ))}
-          {data.tiers.length < 6 && (
+          {!locked && data.tiers.length < 6 && (
             <button type="button" className="chip" onClick={() => setData({ ...data, tiers: [...data.tiers, 'F'] })}>
               + tier
             </button>
           )}
-          {data.tiers.length > 3 && (
+          {!locked && data.tiers.length > 3 && (
             <button type="button" className="chip" onClick={() => setData({ ...data, tiers: data.tiers.slice(0, -1) })}>
               − tier
             </button>

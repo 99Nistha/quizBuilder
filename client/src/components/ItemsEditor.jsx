@@ -1,4 +1,5 @@
 import { LIMITS } from '../../../shared/meta.js';
+import { useLocked } from '../lib/editing.js';
 import AutoPictures from './AutoPictures.jsx';
 import ImagePicker from './ImagePicker.jsx';
 
@@ -14,12 +15,13 @@ export default function ItemsEditor({ items, onChange, min, max, noun = 'item', 
   function onKey(e, i) {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (i === items.length - 1) add();
+      if (i === items.length - 1 && !locked) add();
       requestAnimationFrame(() => e.target.closest('.items')?.querySelectorAll('input[type=text]')[i + 1]?.focus());
     }
   }
 
   const filled = items.filter((it) => it.label.trim()).length;
+  const locked = useLocked();
 
   return (
     <fieldset className="card-box">
@@ -35,14 +37,16 @@ export default function ItemsEditor({ items, onChange, min, max, noun = 'item', 
             <span className="item-n">{i + 1}</span>
             <input type="text" value={it.label} maxLength={LIMITS.label} placeholder={i === 0 ? placeholder : ''} onChange={(e) => update(it.id, { label: e.target.value })} onKeyDown={(e) => onKey(e, i)} />
             <ImagePicker compact value={it.image} onChange={(image) => update(it.id, { image })} query={it.label} />
-            <button type="button" className="item-x" onClick={() => remove(it.id)} disabled={items.length <= min} aria-label={`Remove ${it.label || 'item'}`}>
-              ×
-            </button>
+            {!locked && (
+              <button type="button" className="item-x" onClick={() => remove(it.id)} disabled={items.length <= min} aria-label={`Remove ${it.label || 'item'}`}>
+                ×
+              </button>
+            )}
           </li>
         ))}
       </ol>
       <div className="editor-actions">
-        {items.length < max && (
+        {!locked && items.length < max && (
           <button type="button" className="btn btn-outline btn-small" onClick={add}>
             + Add another
           </button>

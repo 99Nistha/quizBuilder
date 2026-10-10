@@ -7,6 +7,8 @@ import Result from './pages/Result.jsx';
 import CreatePick from './pages/CreatePick.jsx';
 import Create from './pages/Create.jsx';
 import Browse from './pages/Browse.jsx';
+import Edit from './pages/Edit.jsx';
+import Mine from './pages/Mine.jsx';
 import Privacy from './pages/Privacy.jsx';
 import NotFound from './pages/NotFound.jsx';
 
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/r/:id" element={<Result />} />
         <Route path="/make" element={<CreatePick />} />
         <Route path="/make/:type" element={<Create />} />
+        <Route path="/edit/:slug" element={<Edit />} />
+        <Route path="/mine" element={<Mine />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/browse/:category" element={<Browse />} />
         <Route path="/privacy" element={<Privacy />} />

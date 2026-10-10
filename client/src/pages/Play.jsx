@@ -4,6 +4,7 @@ import { FORMATS, categoryById } from '../../../shared/meta.js';
 import ShareBox from '../components/ShareBox.jsx';
 import { formatUI } from '../formats/index.js';
 import { api } from '../lib/api.js';
+import { editKeys, editLink } from '../lib/editing.js';
 import { mine, n, plural, timeAgo, useAsync, useTitle } from '../lib/util.js';
 import NotFound from './NotFound.jsx';
 
@@ -47,6 +48,7 @@ export default function Play() {
   const ui = formatUI[game.type];
   const previous = mine.playOf(slug);
   const isNew = params.get('new') === '1';
+  const myKey = editKeys.get(slug);
   const url = `${location.origin}/play/${game.slug}`;
 
   async function finish(result) {
@@ -68,7 +70,20 @@ export default function Play() {
         <div className="callout callout-yay">
           <strong>It's live!</strong> Play it yourself first, then send the link around. Every result someone shares links back here.
           <ShareBox url={url} cardUrl={null} text={game.title} heading="Your link" />
+          {myKey && (
+            <p className="edit-note">
+              <strong>Your private edit link</strong> (don't share this one, it lets anyone edit): <code>{editLink(slug, myKey)}</code>
+              <br />
+              This browser remembers it too. Find it any time under <Link to="/mine">My games</Link>.
+            </p>
+          )}
         </div>
+      )}
+      {params.get('saved') && <p className="callout callout-yay">Saved! Changes are live.</p>}
+      {myKey && !isNew && (
+        <p className="owner-bar">
+          You made this. <Link to={`/edit/${slug}`}>Edit it</Link>
+        </p>
       )}
       <GameHeader game={game} />
       {previous && !isNew && (

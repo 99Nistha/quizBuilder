@@ -2672,3 +2672,73 @@ button {
     transition: none !important;
   }
 }
+
+/* ---------- editing ---------- */
+
+.edit-note {
+  margin: 14px 0 0;
+  font-size: 14px;
+}
+
+.edit-note code {
+  display: block;
+  margin: 6px 0;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px dashed #1db954;
+  border-radius: 8px;
+  word-break: break-all;
+  user-select: all;
+}
+
+.owner-bar {
+  margin: 20px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.owner-bar a {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.danger-link {
+  color: #b3160a;
+}
+
+.mine-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.mine-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.mine-title {
+  font-weight: 800;
+  font-size: 18px;
+  text-decoration: none;
+  flex: 1 1 240px;
+}
+
+.mine-meta {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.mine-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
