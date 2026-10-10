@@ -9,7 +9,7 @@ export default function Privacy() {
       <p>You don't need an account to make or play anything on {SITE_NAME}.</p>
       <p>
         When you finish a game we save <strong>what you picked</strong> (your ranking, your answers) so we can show everyone how the crowd voted and give your result its own link. We don't save
-        your name, email, IP address or anything else that says who you are alongside it.
+        your name, email or anything else that says who you are alongside it.
       </p>
       <p>
         Your browser remembers which results are yours so we can say “your ranking” instead of “their ranking”. That stays on your device. Clear your browser data and it's gone.
@@ -19,7 +19,10 @@ export default function Privacy() {
       </p>
       <p>Pictures you upload are public, since the whole point is that people see them. Please only upload stuff you're okay sharing.</p>
       <p>
-        When you search for a picture, our server looks it up on Wikipedia, iTunes and Openverse for you. Only the words you searched for are sent, nothing about who you are.
+        To stop spam, we keep a scrambled version of your network address for up to an hour, then delete it. It can't be turned back into your address.
+      </p>
+      <p>
+        When you search for a picture, your browser looks it up on Wikipedia, iTunes and Openverse directly, so those sites see that request like any other visit.
       </p>
     </div>
   );

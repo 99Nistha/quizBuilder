@@ -4,16 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n api,web -c yellow,cyan \"node --watch server/index.js\" \"vite\"",
+    "dev": "vite",
     "build": "vite build",
-    "start": "NODE_ENV=production node server/index.js",
-    "seed": "node server/seed.js",
-    "pictures": "node server/fillPictures.js",
-    "edit-link": "node server/editKeys.js"
+    "build:pages": "vite build && node tools/build-pages.js",
+    "migrate": "node tools/migrate-to-supabase.js"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.7.0",
-    "concurrently": "^9.2.5",
+    "better-sqlite3": "^11.10.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.4",
@@ -21,9 +19,6 @@
   },
   "dependencies": {
     "@resvg/resvg-js": "^2.6.2",
-    "better-sqlite3": "^11.10.0",
-    "express": "^5.3.0",
-    "multer": "^2.4.0",
     "nanoid": "^5.1.16",
     "sharp": "^0.35.5"
   },

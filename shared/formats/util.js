@@ -16,7 +16,6 @@ export function text(value, max, { field = 'text', required = true } = {}) {
 // Images are either our own uploads or a plain https link.
 export function image(value) {
   if (typeof value !== 'string' || !value) return null;
-  if (value.startsWith('/uploads/')) return value.replace(/[^\w./-]/g, '');
   try {
     const u = new URL(value);
     return u.protocol === 'https:' ? u.toString() : null;

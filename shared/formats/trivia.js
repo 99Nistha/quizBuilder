@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
-import { beatPct, scoreQuip } from '../../shared/quips.js';
-import { CROWD_MIN } from '../../shared/meta.js';
+import { beatPct, scoreQuip } from '../quips.js';
+import { CROWD_MIN } from '../meta.js';
 import { BadInput, image, pct, text } from './util.js';
 
 const okId = (id) => typeof id === 'string' && /^[\w-]{1,24}$/.test(id);

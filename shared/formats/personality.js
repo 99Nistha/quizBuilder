@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { CROWD_MIN } from '../../shared/meta.js';
+import { CROWD_MIN } from '../meta.js';
 import { BadInput, image, pct, text } from './util.js';
 
 const okId = (id) => typeof id === 'string' && /^[\w-]{1,24}$/.test(id);

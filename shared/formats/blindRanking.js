@@ -1,4 +1,4 @@
-import { CROWD_MIN } from '../../shared/meta.js';
+import { CROWD_MIN } from '../meta.js';
 import { BadInput, itemList, pct } from './util.js';
 
 export default {

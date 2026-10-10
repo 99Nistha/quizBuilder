@@ -1,4 +1,4 @@
-import { CROWD_MIN } from '../../shared/meta.js';
+import { CROWD_MIN } from '../meta.js';
 import { BadInput, itemList, pct, text } from './util.js';
 
 export const DEFAULT_TIERS = ['S', 'A', 'B', 'C', 'D'];

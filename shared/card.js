@@ -1,13 +1,6 @@
-// Draws the 1200x630 share image as SVG, then rasterises it with resvg.
-// Plain text layout, so no headless browser needed.
-import { Resvg } from '@resvg/resvg-js';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { FORMATS, SITE_NAME } from '../shared/meta.js';
-
-const fontDir = fileURLToPath(new URL('./fonts', import.meta.url));
-const fontFiles = fs.readdirSync(fontDir).filter((f) => f.endsWith('.ttf')).map((f) => path.join(fontDir, f));
+// Builds the 1200x630 share card as an SVG string. Pure string work, so the
+// browser (canvas) and the build script (resvg) both draw the same card.
+import { FORMATS, SITE_NAME } from './meta.js';
 
 const W = 1200;
 const H = 630;
@@ -147,8 +140,9 @@ function bigBlock(card, color, top) {
   return out;
 }
 
-export function cardSvg({ game, card, url }) {
-  const color = FORMATS[game.type]?.cardColor ?? FORMATS[game.type]?.color ?? '#ee3322';
+// fontCss: optional @font-face rules, needed when the browser draws the SVG.
+export function cardSvg({ game, card, url, fontCss = '' }) {
+  const color = card.color ?? FORMATS[game.type]?.cardColor ?? FORMATS[game.type]?.color ?? '#ffb703';
   const titleLines = wrap(game.title, 44, 1040, 2);
   const kicker = clean(card.kicker).toUpperCase();
   const kickerW = widthOf(kicker, 18) * 1.12 + 36;
@@ -162,6 +156,7 @@ export function cardSvg({ game, card, url }) {
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
+    ${fontCss ? `<style>${fontCss}</style>` : ''}
     <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
       <circle cx="3" cy="3" r="2.2" fill="#000" fill-opacity="0.12"/>
     </pattern>
@@ -185,11 +180,3 @@ export function cardSvg({ game, card, url }) {
 </svg>`;
 }
 
-export function renderCard(args) {
-  const svg = cardSvg(args);
-  const resvg = new Resvg(svg, {
-    font: { fontFiles, loadSystemFonts: false, defaultFontFamily: 'Rubik' },
-    fitTo: { mode: 'width', value: W },
-  });
-  return resvg.render().asPng();
-}

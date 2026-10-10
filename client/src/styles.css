@@ -2127,6 +2127,17 @@ button {
   background: var(--line);
 }
 
+.share-card-loading {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1200 / 630;
+  border-radius: 12px;
+  border: 2px dashed var(--line);
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .share-link {
   display: flex;
   align-items: center;

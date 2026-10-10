@@ -1,7 +1,7 @@
 // "This or that" and "would you rather" are the same game underneath:
 // a list of two-way choices, and the fun is seeing how the crowd split.
 import { nanoid } from 'nanoid';
-import { CROWD_MIN } from '../../shared/meta.js';
+import { CROWD_MIN } from '../meta.js';
 import { BadInput, image, pct, text } from './util.js';
 
 export function pairsFormat({ min = 3, max = 20, maxLen = 60, noun = 'pair', kicker, summaryVerb }) {

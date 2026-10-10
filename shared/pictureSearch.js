@@ -1,77 +1,12 @@
-// Picture handling: resizing uploads, searching free image sources, and
-// copying a picked search result onto our own disk so it never breaks.
-import fs from 'node:fs';
-import path from 'node:path';
-import sharp from 'sharp';
-import { nanoid } from 'nanoid';
-import { BadInput } from './formats/util.js';
-import { BRAND, SITE_NAME } from '../shared/meta.js';
+// Free picture search: Wikipedia first, iTunes artwork for music/film/TV,
+// then Creative Commons photos from Openverse. No API keys. Runs in the
+// browser (all three allow it) and in Node for the build tools.
+import { BRAND } from './brand.js';
 
-// Wikimedia asks for a User-Agent with a way to contact the operator.
-// Defaults to the site's own address; IMAGE_SEARCH_CONTACT can override it (e.g. an email).
-const UA = `${SITE_NAME.replace(/\W/g, '')}/0.1 (${process.env.IMAGE_SEARCH_CONTACT || BRAND.url}) image search for user-made quizzes`;
-const MAX_BYTES = 8 * 1024 * 1024;
-
-export function imageStore(uploadDir) {
-  // Everything gets shrunk to something sensible. GIFs stay as they are so they keep moving.
-  async function save(buffer, mimetype) {
-    if (mimetype === 'image/gif') {
-      const name = `${nanoid(14)}.gif`;
-      await fs.promises.writeFile(path.join(uploadDir, name), buffer);
-      return `/uploads/${name}`;
-    }
-    const img = sharp(buffer, { failOn: 'none' }).rotate();
-    const meta = await img.metadata();
-    if (!meta.width) throw new BadInput("That doesn't look like a picture.");
-    const name = `${nanoid(14)}.${meta.hasAlpha ? 'png' : 'jpg'}`;
-    const resized = img.resize({ width: 900, height: 900, fit: 'inside', withoutEnlargement: true });
-    await (meta.hasAlpha ? resized.png({ compressionLevel: 9 }) : resized.jpeg({ quality: 82, mozjpeg: true })).toFile(path.join(uploadDir, name));
-    return `/uploads/${name}`;
-  }
-
-  // Only fetch from the image sources we search ourselves, never arbitrary URLs.
-  const ALLOWED = [/^upload\.wikimedia\.org$/, /^thumb\.wikimedia\.org$/, /^api\.openverse\.org$/, /^is\d-ssl\.mzstatic\.com$/];
-
-  async function importRemote(url) {
-    let u;
-    try {
-      u = new URL(url);
-    } catch {
-      throw new BadInput('Bad image link');
-    }
-    if (u.protocol !== 'https:' || !ALLOWED.some((re) => re.test(u.hostname))) throw new BadInput("We can't grab pictures from there");
-    const res = await fetch(u, { headers: { 'user-agent': UA }, redirect: 'follow', signal: AbortSignal.timeout(12000) });
-    if (!res.ok) throw new BadInput("Couldn't load that picture, try another one");
-    const type = res.headers.get('content-type')?.split(';')[0] ?? '';
-    if (!type.startsWith('image/')) throw new BadInput("That link isn't a picture");
-    const buf = Buffer.from(await res.arrayBuffer());
-    if (buf.length > MAX_BYTES) throw new BadInput('That picture is huge, try another one');
-    return save(buf, type);
-  }
-
-  // Small square-ish JPEG for share cards, cached on disk next to the upload.
-  async function cardThumb(src, size = 160) {
-    if (!src?.startsWith('/uploads/')) return null;
-    const file = path.join(uploadDir, path.basename(src));
-    const thumb = `${file}.card${size}.jpg`;
-    try {
-      return await fs.promises.readFile(thumb);
-    } catch {
-      /* not made yet */
-    }
-    try {
-      const buf = await sharp(file, { animated: false }).resize(size, size, { fit: 'cover' }).flatten({ background: '#ffffff' }).jpeg({ quality: 80 }).toBuffer();
-      await fs.promises.writeFile(thumb, buf);
-      return buf;
-    } catch {
-      return null;
-    }
-  }
-
-  return { save, importRemote, cardThumb };
-}
-
-// ---------- search ----------
+const inBrowser = typeof window !== 'undefined';
+// Wikimedia asks callers to say who they are. Browsers can't change User-Agent,
+// so the browser sends Api-User-Agent instead (Wikipedia's own convention).
+const UA = `${BRAND.name.replace(/\W/g, '')}/1.0 (${BRAND.url}) picture search for user-made quizzes`;
 
 // If a source says "slow down", leave it alone for a minute.
 const coolingUntil = new Map();
@@ -80,10 +15,11 @@ async function getJson(url) {
   const host = new URL(url).hostname;
   if ((coolingUntil.get(host) ?? 0) > Date.now()) return null;
   try {
-    const res = await fetch(url, { headers: { 'user-agent': UA, 'api-user-agent': UA }, signal: AbortSignal.timeout(8000) });
+    const wiki = host.endsWith('wikipedia.org');
+    const headers = inBrowser ? (wiki ? { 'Api-User-Agent': UA } : {}) : { 'user-agent': UA };
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
     if (res.status === 429) {
       coolingUntil.set(host, Date.now() + 60_000);
-      console.warn(`image search: ${host} is rate limiting us, backing off for a minute`);
     }
     return res.ok ? await res.json() : null;
   } catch {

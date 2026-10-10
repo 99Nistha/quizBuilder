@@ -8,15 +8,9 @@ const brand = {
   transformIndexHtml: (html) => html.replaceAll('%BRAND_NAME%', BRAND.name).replaceAll('%BRAND_COLOR%', BRAND.themeColor),
 };
 
-const api = 'http://localhost:4317';
-
 export default defineConfig({
   root: 'client',
   plugins: [react(), brand],
   build: { outDir: '../dist', emptyOutDir: true },
-  server: {
-    port: 5317,
-    fs: { allow: ['..'] },
-    proxy: { '/api': api, '/card': api, '/uploads': api },
-  },
+  server: { port: 5317, fs: { allow: ['..'] } },
 });

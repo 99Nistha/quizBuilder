@@ -6,6 +6,12 @@ export const BRAND = {
   // the live site; used for share links and cards in production
   // (PUBLIC_URL overrides it, e.g. for a staging copy)
   url: 'https://playbee.pro',
+  // Your Supabase project (Settings -> API). Both values are meant to be public:
+  // the database only lets this key call Playbee's own functions.
+  supabase: {
+    url: '',
+    anonKey: '',
+  },
   // shown in the browser tab on the homepage and in link previews
   tagline: 'make the quiz, start the argument',
   description: 'Blind rankings, tier lists, brackets, quizzes and more. Made by people, for people with opinions.',

@@ -17,10 +17,13 @@ export default function ShareBox({ url, cardUrl, text, heading = 'Share it' }) {
 
   async function nativeShare() {
     try {
-      const blob = await fetch(cardUrl).then((r) => r.blob());
-      const file = new File([blob], 'my-result.png', { type: 'image/png' });
       const data = { title: text, text, url };
-      if (navigator.canShare?.({ files: [file] })) data.files = [file];
+      // attach the card picture when it's ready (great for Instagram stories)
+      if (cardUrl && cardUrl !== 'loading') {
+        const blob = await fetch(cardUrl).then((r) => r.blob());
+        const file = new File([blob], 'my-result.png', { type: 'image/png' });
+        if (navigator.canShare?.({ files: [file] })) data.files = [file];
+      }
       await navigator.share(data);
     } catch {
       /* closed the sheet */
@@ -37,7 +40,8 @@ export default function ShareBox({ url, cardUrl, text, heading = 'Share it' }) {
   return (
     <section className="share">
       <h2 className="share-heading">{heading}</h2>
-      {cardUrl && (
+      {cardUrl === 'loading' && <div className="share-card share-card-loading">Drawing your card…</div>}
+      {cardUrl && cardUrl !== 'loading' && (
         <a href={cardUrl} target="_blank" rel="noreferrer" className="share-card">
           <img src={cardUrl} alt="Your share card" width="1200" height="630" />
         </a>
@@ -61,7 +65,7 @@ export default function ShareBox({ url, cardUrl, text, heading = 'Share it' }) {
             {name}
           </a>
         ))}
-        {cardUrl && (
+        {cardUrl && cardUrl !== 'loading' && (
           <a className="chip" href={cardUrl} download="my-result.png">
             Save image
           </a>
