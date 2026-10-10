@@ -4,6 +4,7 @@ import ImagePicker from '../components/ImagePicker.jsx';
 import { newItem } from '../components/ItemsEditor.jsx';
 import AnswerButton from '../components/AnswerButton.jsx';
 import QuestionsEditor, { newQuestion } from '../components/QuestionsEditor.jsx';
+import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
 import { Bars } from './poll.jsx';
 
 const newResult = () => ({ ...newItem(), desc: '' });
@@ -109,7 +110,7 @@ function Result({ game, result, stats, yours }) {
           {outcome.desc && <p className="outcome-desc">{outcome.desc}</p>}
         </div>
       </div>
-      {stats.count >= 5 ? (
+      {crowdReady(stats) ? (
         <>
           <p className="verdict">
             <strong>{share}%</strong> of people got {outcome.label} too. Here's how everyone else turned out:
@@ -117,8 +118,24 @@ function Result({ game, result, stats, yours }) {
           <Bars items={stats.items} mineId={outcome.id} mineTag={yours ? 'you' : 'them'} labelOf={(id) => game.data.results.find((r) => r.id === id)?.label} />
         </>
       ) : (
-        <p className="verdict">Not many people have taken this yet. Come back later to see how rare your result is.</p>
+        <p className="verdict">You're the first to take this! Once others do, you'll see how rare your result is.</p>
       )}
+      <h3 className="sub-heading">{yours ? 'Your answers' : 'Their answers'}</h3>
+      <ol className="q-review">
+        {game.data.questions.map((q) => {
+          const a = q.answers.find((x) => x.id === result.answers?.[q.id]);
+          return (
+            <li key={q.id} className="ok">
+              <div>
+                <strong>{q.text}</strong>
+                <span>{a?.label}</span>
+                <Same pct={stats.picks?.[q.id]?.[a?.id]} stats={stats} label="picked the same" />
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <CrowdNote stats={stats} />
     </section>
   );
 }

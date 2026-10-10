@@ -76,8 +76,8 @@ function Result({ game, result, stats: initial, yours }) {
       <h2 className="result-heading">{yours ? 'You voted' : 'They voted'}: {labelOf(result.pick)}</h2>
       <Bars items={stats.items} mineId={result.pick} labelOf={labelOf} />
       <p className="verdict">
-        {stats.count < 3
-          ? "You're one of the first votes in. Check back in a bit, the numbers update live."
+        {stats.count < 2
+          ? "You're the first vote in! Leave this open, the numbers update live as people vote."
           : top.id === result.pick
             ? `${yours ? "You're" : "They're"} with the majority. ${mine.pct}% agree.`
             : `${yours ? 'You' : 'They'} went against the grain. Only ${mine.pct}% picked that.`}{' '}

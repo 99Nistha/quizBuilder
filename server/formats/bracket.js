@@ -1,3 +1,4 @@
+import { CROWD_MIN } from '../../shared/meta.js';
 import { BadInput, itemList, pct } from './util.js';
 
 export const roundName = (size) => ({ 2: 'Final', 4: 'Semifinals', 8: 'Quarterfinals' })[size] ?? `Round of ${size}`;
@@ -53,14 +54,14 @@ export default {
       }
       const share = stats.items.find((i) => i.id === champ)?.pct;
       return {
-        kicker: stats.count >= 5 ? `My champion (${share}% agree)` : 'My champion',
+        kicker: stats.count >= CROWD_MIN ? `My champion (${share}% agree)` : 'My champion',
         layout: 'big',
         big: label(champ),
         image: item(champ)?.image,
         sub: `Beat ${beaten[0]} in the final${beaten[1] ? `, ${beaten[1]} in the semis` : ''}${beaten[2] ? ` and ${beaten[2]} before that` : ''}.`,
       };
     }
-    if (stats.count >= 5) {
+    if (stats.count >= CROWD_MIN) {
       const rows = [...stats.items].sort((a, b) => b.votes - a.votes).slice(0, 5).map((s) => ({ label: label(s.id), image: item(s.id)?.image, pct: s.pct }));
       return { kicker: 'Who people crowned', layout: 'bars', rows };
     }

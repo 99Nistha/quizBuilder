@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import ItemFace from '../components/ItemFace.jsx';
 import ItemsEditor, { newItem } from '../components/ItemsEditor.jsx';
+import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
 
 const SCALE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -83,7 +84,8 @@ function Player({ game, onDone, saving }) {
 function Result({ game, result, stats, yours }) {
   const byId = Object.fromEntries(game.data.items.map((i) => [i.id, i]));
   const avg = Object.fromEntries(stats.items.map((s) => [s.id, s.avg]));
-  const enough = stats.count >= 3;
+  const enough = crowdReady(stats);
+  const scoresOf = Object.fromEntries(stats.items.map((s) => [s.id, s.scores]));
   const ids = Object.keys(result.ratings).sort((a, b) => result.ratings[b] - result.ratings[a]);
   const mean = (list) => list.reduce((s, x) => s + x, 0) / list.length;
   const diff = enough ? mean(ids.map((id) => result.ratings[id] - avg[id])) : 0;
@@ -97,6 +99,7 @@ function Result({ game, result, stats, yours }) {
           <li key={id}>
             <ItemFace item={byId[id]} size="xs" />
             <span className="ranked-label">{byId[id].label}</span>
+            <Same pct={scoresOf[id]?.[result.ratings[id]]} stats={stats} label={`gave ${result.ratings[id]}`} />
             {enough && <span className="crowd">avg {avg[id]}</span>}
             <span className="rated-score">{result.ratings[id]}</span>
           </li>
@@ -124,8 +127,9 @@ function Result({ game, result, stats, yours }) {
           )}
         </div>
       ) : (
-        <p className="verdict">You're early. Once more people rate these you'll see the averages here.</p>
+        <p className="verdict">You're the first! Once someone else rates these you'll see the averages and who gave the same scores.</p>
       )}
+      <CrowdNote stats={stats} />
     </section>
   );
 }

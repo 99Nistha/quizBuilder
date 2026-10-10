@@ -1894,11 +1894,6 @@ button {
   white-space: nowrap;
 }
 
-.crowd-same {
-  color: #13893f;
-  font-weight: 600;
-}
-
 .verdict {
   margin-top: 18px;
   padding-top: 16px;
@@ -1915,6 +1910,82 @@ button {
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 26px;
+}
+
+/* ---------- crowd numbers ---------- */
+
+.same {
+  display: inline-block;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 9px;
+  background: #fff1b8;
+  color: #6b5200;
+  animation: pop 0.3s ease;
+}
+
+.same-lots {
+  background: #d3f5dc;
+  color: #116b32;
+}
+
+.same-few {
+  background: #ffe0dc;
+  color: #a3200f;
+}
+
+.br-slot .same {
+  margin-left: auto;
+}
+
+.q-review .same {
+  margin-top: 4px;
+}
+
+.q-crowd {
+  display: block;
+  font-family: var(--body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.crowd-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.agree-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.agree-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.agree-tier {
+  font-family: var(--display);
+  font-size: 15px;
+  min-width: 34px;
+  text-align: center;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+
+.split-labels .same {
+  align-self: center;
 }
 
 /* ---------- share ---------- */

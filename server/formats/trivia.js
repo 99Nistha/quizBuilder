@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import { beatPct, scoreQuip } from '../../shared/quips.js';
+import { CROWD_MIN } from '../../shared/meta.js';
 import { BadInput, image, pct, text } from './util.js';
 
 const okId = (id) => typeof id === 'string' && /^[\w-]{1,24}$/.test(id);
@@ -45,11 +46,15 @@ export default {
   aggregate(data, results) {
     const dist = {};
     const right = Object.fromEntries(data.questions.map((q) => [q.id, 0]));
+    const picks = Object.fromEntries(data.questions.map((q) => [q.id, Object.fromEntries(q.answers.map((a) => [a.id, 0]))]));
     let sum = 0;
     for (const r of results) {
       dist[r.score] = (dist[r.score] ?? 0) + 1;
       sum += r.score;
-      for (const q of data.questions) if (r.answers[q.id] === q.correct) right[q.id] += 1;
+      for (const q of data.questions) {
+        if (r.answers[q.id] === q.correct) right[q.id] += 1;
+        if (r.answers[q.id] in picks[q.id]) picks[q.id][r.answers[q.id]] += 1;
+      }
     }
     const count = results.length;
     return {
@@ -57,6 +62,7 @@ export default {
       avg: count ? Math.round((sum / count) * 10) / 10 : null,
       dist,
       right: Object.fromEntries(Object.entries(right).map(([id, n]) => [id, pct(n, count)])),
+      picks: Object.fromEntries(Object.entries(picks).map(([qid, by]) => [qid, Object.fromEntries(Object.entries(by).map(([aid, n]) => [aid, pct(n, count)]))])),
     };
   },
 
@@ -68,14 +74,14 @@ export default {
         kicker: 'My score',
         layout: 'big',
         big: `${result.score}/${result.total}. ${scoreQuip(result.score, result.total)}`,
-        sub: stats.count >= 5 ? `Better than ${beat}% of people who took it. Can you beat that?` : 'Can you beat that?',
+        sub: stats.count >= CROWD_MIN ? `Better than ${beat}% of people who took it. Can you beat that?` : 'Can you beat that?',
         image: game.cover,
       };
     }
     return {
       kicker: `Trivia · ${total} questions`,
       layout: 'big',
-      big: stats.count >= 5 ? `Average score: ${stats.avg}/${total}` : `${total} questions. No googling.`,
+      big: stats.count >= CROWD_MIN ? `Average score: ${stats.avg}/${total}` : `${total} questions. No googling.`,
       sub: game.blurb || 'Think you know your stuff? Prove it.',
       image: game.cover,
     };

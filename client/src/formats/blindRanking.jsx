@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import ItemFace from '../components/ItemFace.jsx';
 import ItemsEditor, { newItem } from '../components/ItemsEditor.jsx';
+import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
 import { shuffle } from '../lib/util.js';
 
 function Editor({ data, setData }) {
@@ -15,7 +16,8 @@ function Editor({ data, setData }) {
   );
 }
 
-function Player({ game, onDone, saving }) {
+function Player({ game, stats, onDone, saving }) {
+  const posOf = Object.fromEntries((stats?.items ?? []).map((s) => [s.id, s.pos]));
   const queue = useMemo(() => (game.data.shuffle ? shuffle(game.data.items) : game.data.items), [game]);
   const [slots, setSlots] = useState(() => Array(queue.length).fill(null));
   const placed = slots.filter(Boolean).length;
@@ -65,6 +67,7 @@ function Player({ game, onDone, saving }) {
                 <>
                   <ItemFace item={item} size="xs" />
                   <span className="br-label">{item.label}</span>
+                  <Same pct={posOf[item.id]?.[i]} stats={stats} label="put it here" />
                 </>
               ) : (
                 <span className="br-empty">{done ? '' : 'put it here'}</span>
@@ -80,7 +83,8 @@ function Player({ game, onDone, saving }) {
 function Result({ game, result, stats, yours }) {
   const byId = Object.fromEntries(game.data.items.map((i) => [i.id, i]));
   const crowdRank = Object.fromEntries(stats.items.map((it, i) => [it.id, i + 1]));
-  const enough = stats.count >= 3;
+  const enough = crowdReady(stats);
+  const posOf = Object.fromEntries(stats.items.map((s) => [s.id, s.pos]));
 
   let agreed = 0;
   let spicy = null;
@@ -103,10 +107,11 @@ function Result({ game, result, stats, yours }) {
               <ItemFace item={byId[id]} size="xs" />
               <span className="ranked-label">{byId[id]?.label}</span>
               {enough && (
-                <span className={`crowd ${diff === 0 ? 'crowd-same' : ''}`} title="Where everyone else put it, on average">
-                  {diff === 0 ? 'same as crowd' : `crowd: #${c}`}
+                <span className="crowd" title="Where everyone else put it, on average">
+                  {diff === 0 ? 'crowd agrees' : `crowd: #${c}`}
                 </span>
               )}
+              <Same pct={posOf[id]?.[i]} stats={stats} />
             </li>
           );
         })}
@@ -126,8 +131,9 @@ function Result({ game, result, stats, yours }) {
           )}
         </div>
       ) : (
-        <p className="verdict">You're one of the first to play this. Check back once a few more people have ranked it to see where you land.</p>
+        <p className="verdict">You're the first to play this. Once someone else ranks it you'll see how many people put things in the same spot as you.</p>
       )}
+      <CrowdNote stats={stats} />
     </section>
   );
 }

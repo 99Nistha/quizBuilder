@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { beatPct, scoreQuip } from '../../../shared/quips.js';
 import AnswerButton from '../components/AnswerButton.jsx';
 import QuestionsEditor, { newQuestion } from '../components/QuestionsEditor.jsx';
+import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
 
 function Editor({ data, setData }) {
   return (
@@ -12,7 +13,7 @@ function Editor({ data, setData }) {
   );
 }
 
-function Player({ game, onDone, saving }) {
+function Player({ game, stats, onDone, saving }) {
   const { questions } = game.data;
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -58,7 +59,10 @@ function Player({ game, onDone, saving }) {
         </div>
         {chosen && (
           <div className="q-after">
-            <p className="q-verdict">{chosen === q.correct ? 'Yep!' : 'Nope.'}</p>
+            <p className="q-verdict">
+              {chosen === q.correct ? 'Yep!' : 'Nope.'}
+              {crowdReady(stats) && <span className="q-crowd">{stats.right[q.id]}% of people got this right</span>}
+            </p>
             {q.note && <p className="q-note-text">{q.note}</p>}
             <button className="btn btn-ink" onClick={() => setI(i + 1)} autoFocus>
               {last ? 'Finish' : 'Next question'}
@@ -81,12 +85,12 @@ function Result({ game, result, stats, yours }) {
         </span>
         <span className="score-quip">{scoreQuip(result.score, result.total)}</span>
       </div>
-      {stats.count >= 5 ? (
+      {crowdReady(stats) ? (
         <p className="verdict">
           {yours ? 'You' : 'They'} did better than <strong>{beat}%</strong> of people. The average is {stats.avg}/{result.total}.
         </p>
       ) : (
-        <p className="verdict">Only a few people have played so far, so no leaderboard vibes yet.</p>
+        <p className="verdict">You're the first to take this. Once others play you'll see how you stack up.</p>
       )}
       <ol className="q-review">
         {game.data.questions.map((q) => {
@@ -103,13 +107,15 @@ function Result({ game, result, stats, yours }) {
                       <s>{label(result.answers[q.id])}</s> → {label(q.correct)}
                     </>
                   )}
-                  {stats.count >= 5 && <em> · {stats.right[q.id]}% got this</em>}
+                  {crowdReady(stats) && <em> · {stats.right[q.id]}% got it right</em>}
                 </span>
+                <Same pct={stats.picks?.[q.id]?.[result.answers[q.id]]} stats={stats} label="picked the same" />
               </div>
             </li>
           );
         })}
       </ol>
+      <CrowdNote stats={stats} />
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from 'react';
 import ItemFace from '../components/ItemFace.jsx';
 import ItemsEditor, { newItem } from '../components/ItemsEditor.jsx';
 import { shuffle } from '../lib/util.js';
+import { CrowdNote, crowdReady } from '../components/Same.jsx';
 import { Bars } from './poll.jsx';
 
 const roundName = (size) => ({ 2: 'Final', 4: 'Semifinals', 8: 'Quarterfinals' })[size] ?? `Round of ${size}`;
@@ -123,7 +124,7 @@ function Result({ game, result, stats, yours }) {
         <h2 className="outcome-name">{champ.label}</h2>
       </div>
       <BracketView rounds={result.rounds} byId={byId} />
-      {stats.count >= 5 ? (
+      {crowdReady(stats) ? (
         <>
           <p className="verdict">
             <strong>{share}%</strong> of people crowned {champ.label} too.
@@ -132,8 +133,9 @@ function Result({ game, result, stats, yours }) {
           <Bars items={stats.items.filter((s) => s.votes > 0)} mineId={champ.id} mineTag={yours ? 'yours' : 'theirs'} labelOf={(id) => byId[id]?.label} />
         </>
       ) : (
-        <p className="verdict">Not many brackets in yet. Check back to see who the crowd crowns.</p>
+        <p className="verdict">You're the first to finish this bracket! Once others do, you'll see who the crowd crowns.</p>
       )}
+      <CrowdNote stats={stats} />
     </section>
   );
 }

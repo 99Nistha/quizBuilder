@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { CROWD_MIN } from '../../shared/meta.js';
 import { BadInput, image, pct, text } from './util.js';
 
 const okId = (id) => typeof id === 'string' && /^[\w-]{1,24}$/.test(id);
@@ -55,9 +56,17 @@ export default {
 
   aggregate(data, results) {
     const counts = Object.fromEntries(data.results.map((r) => [r.id, 0]));
-    for (const r of results) if (r.outcome in counts) counts[r.outcome] += 1;
+    const picks = Object.fromEntries(data.questions.map((q) => [q.id, Object.fromEntries(q.answers.map((a) => [a.id, 0]))]));
+    for (const r of results) {
+      if (r.outcome in counts) counts[r.outcome] += 1;
+      for (const q of data.questions) if (r.answers?.[q.id] in picks[q.id]) picks[q.id][r.answers[q.id]] += 1;
+    }
     const count = results.length;
-    return { count, items: data.results.map((r) => ({ id: r.id, votes: counts[r.id], pct: pct(counts[r.id], count) })) };
+    return {
+      count,
+      items: data.results.map((r) => ({ id: r.id, votes: counts[r.id], pct: pct(counts[r.id], count) })),
+      picks: Object.fromEntries(Object.entries(picks).map(([qid, by]) => [qid, Object.fromEntries(Object.entries(by).map(([aid, n]) => [aid, pct(n, count)]))])),
+    };
   },
 
   card(game, result, stats) {
@@ -65,7 +74,7 @@ export default {
     if (outcome) {
       const share = stats.items.find((i) => i.id === outcome.id)?.pct;
       return {
-        kicker: stats.count >= 5 ? `I got this (so did ${share}% of people)` : 'I got',
+        kicker: stats.count >= CROWD_MIN ? `I got this (so did ${share}% of people)` : 'I got',
         layout: 'big',
         big: outcome.label,
         sub: outcome.desc || 'Which one are you?',

@@ -3,6 +3,7 @@ import AutoPictures from '../components/AutoPictures.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
 import ItemFace from '../components/ItemFace.jsx';
 import { newItem } from '../components/ItemsEditor.jsx';
+import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
 
 // Shared by "this or that" and "would you rather".
 export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big, ...copy }) {
@@ -99,7 +100,7 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
     const [reveal, setReveal] = useState(false);
     const pair = pairs[i];
     const crowd = stats?.pairs?.[pair?.id];
-    const canReveal = stats?.count >= 3 && crowd;
+    const canReveal = crowdReady(stats) && crowd;
     const done = Object.keys(picks).length === pairs.length;
 
     useEffect(() => {
@@ -160,7 +161,7 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
   }
 
   function Result({ game, result, stats, yours }) {
-    const enough = stats.count >= 3;
+    const enough = crowdReady(stats);
     let withMajority = 0;
     let lonely = null;
     for (const p of game.data.pairs) {
@@ -181,6 +182,7 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
               <li key={p.id} className="split">
                 <div className="split-labels">
                   <span className={mine === 'a' ? 'split-mine' : ''}>{p.a.label}</span>
+                  <Same pct={mine === 'a' ? aPct : 100 - aPct} stats={stats} />
                   <span className={mine === 'b' ? 'split-mine' : ''}>{p.b.label}</span>
                 </div>
                 {enough ? (
@@ -212,8 +214,9 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
             )}
           </div>
         ) : (
-          <p className="verdict">You're one of the first here, so there's no crowd to compare with yet. Check back soon.</p>
+          <p className="verdict">You're the first one here. As soon as someone else plays, you'll see what % picked the same as you.</p>
         )}
+        <CrowdNote stats={stats} />
       </section>
     );
   }

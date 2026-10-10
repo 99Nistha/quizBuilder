@@ -1,4 +1,5 @@
-import { BadInput, itemList, text } from './util.js';
+import { CROWD_MIN } from '../../shared/meta.js';
+import { BadInput, itemList, pct, text } from './util.js';
 
 export const DEFAULT_TIERS = ['S', 'A', 'B', 'C', 'D'];
 
@@ -28,9 +29,14 @@ export default {
     const count = results.length;
     const items = data.items.map((item) => {
       let sum = 0;
-      for (const r of results) sum += r.tiers[item.id] ?? 0;
+      const per = Array(data.tiers.length).fill(0);
+      for (const r of results) {
+        const t = r.tiers[item.id] ?? 0;
+        sum += t;
+        if (per[t] !== undefined) per[t] += 1;
+      }
       const avg = count ? sum / count : null;
-      return { id: item.id, avg, tier: count ? Math.min(data.tiers.length - 1, Math.round(avg)) : null };
+      return { id: item.id, avg, tier: count ? Math.min(data.tiers.length - 1, Math.round(avg)) : null, tiers: per.map((c) => pct(c, count)) };
     });
     return { count, items };
   },
@@ -41,7 +47,7 @@ export default {
       const rows = data.tiers.map((tier, t) => ({ tier, items: data.items.filter((i) => result.tiers[i.id] === t).map((i) => i.label) }));
       return { kicker: 'My tier list', layout: 'tiers', rows };
     }
-    if (stats.count >= 3) return { kicker: `The crowd's tier list (${stats.count.toLocaleString('en-US')} people)`, layout: 'tiers', rows: crowdTiers(data, stats) };
+    if (stats.count >= CROWD_MIN) return { kicker: `The crowd's tier list (${stats.count.toLocaleString('en-US')} people)`, layout: 'tiers', rows: crowdTiers(data, stats) };
     return { kicker: 'Make your tier list', layout: 'tiers', rows: data.tiers.map((tier, t) => ({ tier, items: t === 0 ? ['?'] : [] })) };
   },
 

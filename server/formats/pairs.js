@@ -1,6 +1,7 @@
 // "This or that" and "would you rather" are the same game underneath:
 // a list of two-way choices, and the fun is seeing how the crowd split.
 import { nanoid } from 'nanoid';
+import { CROWD_MIN } from '../../shared/meta.js';
 import { BadInput, image, pct, text } from './util.js';
 
 export function pairsFormat({ min = 3, max = 20, maxLen = 60, noun = 'pair', kicker, summaryVerb }) {
@@ -52,12 +53,12 @@ export function pairsFormat({ min = 3, max = 20, maxLen = 60, noun = 'pair', kic
             const mine = result.picks[p.id];
             const s = stats.pairs[p.id];
             const share = mine === 'a' ? s.aPct : 100 - s.aPct;
-            return { label: `${p[mine].label} over ${p[mine === 'a' ? 'b' : 'a'].label}`, image: p[mine].image, right: stats.count >= 3 ? `${share}%` : '' };
+            return { label: `${p[mine].label} over ${p[mine === 'a' ? 'b' : 'a'].label}`, image: p[mine].image, right: stats.count >= CROWD_MIN ? `${share}%` : '' };
           }),
         };
       }
       return {
-        kicker: stats.count >= 3 ? `${stats.count.toLocaleString('en-US')} people have picked` : 'Pick one. Then the next.',
+        kicker: stats.count >= CROWD_MIN ? `${stats.count.toLocaleString('en-US')} people have picked` : 'Pick one. Then the next.',
         layout: 'list',
         marks: 'numbers',
         rows: game.data.pairs.slice(0, 10).map((p) => `${p.a.label}  or  ${p.b.label}`),

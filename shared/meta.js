@@ -77,6 +77,9 @@ export const FORMATS = {
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));
 
+// Crowd numbers show once at least one other person has played (you + 1).
+export const CROWD_MIN = 2;
+
 export const LIMITS = {
   title: 90,
   blurb: 200,

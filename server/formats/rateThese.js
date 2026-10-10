@@ -1,4 +1,5 @@
-import { BadInput, itemList } from './util.js';
+import { CROWD_MIN } from '../../shared/meta.js';
+import { BadInput, itemList, pct } from './util.js';
 
 const round1 = (n) => Math.round(n * 10) / 10;
 
@@ -22,7 +23,15 @@ export default {
     const count = results.length;
     return {
       count,
-      items: data.items.map((item) => ({ id: item.id, avg: count ? round1(results.reduce((s, r) => s + (r.ratings[item.id] ?? 0), 0) / count) : null })),
+      items: data.items.map((item) => {
+        const per = Array(11).fill(0);
+        for (const r of results) per[r.ratings[item.id]] = (per[r.ratings[item.id]] ?? 0) + 1;
+        return {
+          id: item.id,
+          avg: count ? round1(results.reduce((s, r) => s + (r.ratings[item.id] ?? 0), 0) / count) : null,
+          scores: per.map((c) => pct(c, count)),
+        };
+      }),
     };
   },
 
@@ -35,7 +44,7 @@ export default {
         .map(([id, v]) => ({ label: label(id), image: item(id)?.image, right: `${v}/10` }));
       return { kicker: 'My ratings', layout: 'list', rows };
     }
-    if (stats.count >= 3) {
+    if (stats.count >= CROWD_MIN) {
       const rows = [...stats.items].sort((a, b) => b.avg - a.avg).map((s) => ({ label: label(s.id), image: item(s.id)?.image, right: `${s.avg}` }));
       return { kicker: `Average ratings from ${stats.count.toLocaleString('en-US')} people`, layout: 'list', rows };
     }

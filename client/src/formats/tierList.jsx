@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import ItemFace from '../components/ItemFace.jsx';
 import ItemsEditor, { newItem } from '../components/ItemsEditor.jsx';
+import Same, { CrowdNote, crowdReady } from '../components/Same.jsx';
 import { shuffle } from '../lib/util.js';
 
 const TIER_COLORS = ['#ff6b6b', '#ffa94d', '#ffd43b', '#8ce99a', '#74c0fc', '#b197fc'];
@@ -116,7 +117,8 @@ function Player({ game, onDone, saving }) {
 
 function Result({ game, result, stats, yours }) {
   const { tiers, items } = game.data;
-  const enough = stats.count >= 3;
+  const enough = crowdReady(stats);
+  const tiersOf = Object.fromEntries(stats.items.map((s) => [s.id, s.tiers]));
   const crowd = Object.fromEntries(stats.items.map((s) => [s.id, s.tier]));
   const avg = Object.fromEntries(stats.items.map((s) => [s.id, s.avg]));
   const takes = enough
@@ -142,12 +144,25 @@ function Result({ game, result, stats, yours }) {
               ))}
             </div>
           )}
+          <h3 className="sub-heading">Who agreed with you</h3>
+          <ul className="agree-list">
+            {[...items]
+              .sort((x, y) => result.tiers[x.id] - result.tiers[y.id])
+              .map((i) => (
+                <li key={i.id}>
+                  <span className="agree-tier">{tiers[result.tiers[i.id]]}</span>
+                  <span className="ranked-label">{i.label}</span>
+                  <Same pct={tiersOf[i.id]?.[result.tiers[i.id]]} stats={stats} label="same tier" />
+                </li>
+              ))}
+          </ul>
           <h3 className="sub-heading">Everyone's tier list ({stats.count.toLocaleString('en-US')} people)</h3>
           <TierBoard tiers={tiers} items={items} placement={crowd} />
         </>
       ) : (
-        <p className="verdict">You're early! Once a few more people sort these, the crowd's tier list shows up here.</p>
+        <p className="verdict">You're the first! Once someone else sorts these, you'll see what % put each one in the same tier as you.</p>
       )}
+      <CrowdNote stats={stats} />
     </section>
   );
 }
