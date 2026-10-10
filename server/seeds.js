@@ -131,4 +131,33 @@ export const seeds = [
       return { answers, score, total: data.questions.length };
     },
   },
+  {
+    type: 'personality',
+    slug: 'which-pasta-shape-are-you',
+    title: 'Which pasta shape are you?',
+    blurb: 'Deeply scientific. Peer reviewed by nobody.',
+    category: 'food',
+    data: {
+      results: [
+        { id: 'spag', label: 'Spaghetti', desc: 'A classic. Reliable, a little chaotic, gets everywhere. People love you even when you make a mess.' },
+        { id: 'farf', label: 'Farfalle', desc: 'You are dressed up for an event that is not happening. Main character energy, zero apologies.' },
+        { id: 'macc', label: 'Mac & cheese elbows', desc: 'Pure comfort. You are the friend people call at 2am and you always pick up.' },
+      ],
+      questions: [
+        { id: 'pq1', text: 'Pick a Saturday plan', answers: [{ id: 'a1', label: 'Big dinner with friends', result: 'spag' }, { id: 'a2', label: 'Getting dressed up for no reason', result: 'farf' }, { id: 'a3', label: 'Blanket, sofa, comfort show', result: 'macc' }] },
+        { id: 'pq2', text: 'Your group chat role?', answers: [{ id: 'b1', label: 'Sends 40 messages in a row', result: 'spag' }, { id: 'b2', label: 'Posts outfit pics for approval', result: 'farf' }, { id: 'b3', label: 'Checks in on everyone', result: 'macc' }] },
+        { id: 'pq3', text: 'Choose a drink', answers: [{ id: 'c1', label: 'Red wine', result: 'spag' }, { id: 'c2', label: 'Something pink with a tiny umbrella', result: 'farf' }, { id: 'c3', label: 'Hot chocolate', result: 'macc' }] },
+        { id: 'pq4', text: 'Pick a holiday', answers: [{ id: 'd1', label: 'Rome, obviously', result: 'spag' }, { id: 'd2', label: 'Paris, for the photos', result: 'farf' }, { id: 'd3', label: 'A cabin with no wifi', result: 'macc' }] },
+      ],
+    },
+    fakePlay: (data) => {
+      const answers = Object.fromEntries(data.questions.map((qq) => [qq.id, qq.answers[Math.floor(Math.random() ** 1.3 * qq.answers.length)].id]));
+      const tally = {};
+      for (const qq of data.questions) {
+        const r = qq.answers.find((a) => a.id === answers[qq.id]).result;
+        tally[r] = (tally[r] ?? 0) + 1;
+      }
+      return { answers, outcome: Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0] };
+    },
+  },
 ];

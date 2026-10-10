@@ -1548,6 +1548,60 @@ button {
   margin: -10px 0 20px 4px;
 }
 
+/* ---------- personality ---------- */
+
+.you-got {
+  margin: 0 0 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.outcome {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.outcome img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 3px solid var(--ink);
+  flex-shrink: 0;
+  transform: rotate(-3deg);
+}
+
+.outcome-name {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(36px, 7vw, 54px);
+  line-height: 1;
+  margin: 0 0 8px;
+  color: var(--fc, var(--red));
+}
+
+.outcome-desc {
+  font-size: 19px;
+  margin: 0;
+}
+
+.outcome + .verdict {
+  margin-bottom: 16px;
+}
+
+.back-btn {
+  margin-top: 14px;
+}
+
+.first-hint {
+  margin: 0 0 12px;
+}
+
 /* ---------- results ---------- */
 
 .result {

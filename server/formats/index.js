@@ -3,6 +3,7 @@ import thisOrThat from './thisOrThat.js';
 import wouldYouRather from './wouldYouRather.js';
 import poll from './poll.js';
 import trivia from './trivia.js';
+import personality from './personality.js';
 
 export const formats = {
   blind_ranking: blindRanking,
@@ -10,4 +11,5 @@ export const formats = {
   would_you_rather: wouldYouRather,
   poll,
   trivia,
+  personality,
 };

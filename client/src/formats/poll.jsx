@@ -31,7 +31,7 @@ function Player({ game, onDone, saving }) {
   );
 }
 
-export function Bars({ items, mineId, labelOf }) {
+export function Bars({ items, mineId, labelOf, mineTag = 'your pick' }) {
   const max = Math.max(...items.map((i) => i.pct), 1);
   return (
     <ul className="bars">
@@ -42,7 +42,7 @@ export function Bars({ items, mineId, labelOf }) {
             <div className="bar-top">
               <span>
                 {labelOf(s.id)}
-                {s.id === mineId && <em> your pick</em>}
+                {s.id === mineId && <em> {mineTag}</em>}
               </span>
               <strong>{s.pct}%</strong>
             </div>

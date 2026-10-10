@@ -15,7 +15,7 @@ export const newQuestion = (answers = 3) => ({
 export default function QuestionsEditor({ questions, onChange, mode, results = [], min = 3, max = 20 }) {
   const setQ = (id, patch) => onChange(questions.map((q) => (q.id === id ? { ...q, ...patch } : q)));
   const setA = (q, aid, patch) => setQ(q.id, { answers: q.answers.map((a) => (a.id === aid ? { ...a, ...patch } : a)) });
-  const namedResults = results.filter((r) => r.label.trim());
+  const namedResults = results;
 
   return (
     <fieldset className="card-box">
@@ -49,9 +49,9 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
                   {mode === 'personality' && (
                     <select className="select a-result" value={a.result ?? ''} onChange={(e) => setA(q, a.id, { result: e.target.value || null })} aria-label="Counts towards">
                       <option value="">counts towards…</option>
-                      {namedResults.map((r) => (
+                      {results.map((r, k) => (
                         <option key={r.id} value={r.id}>
-                          {r.label}
+                          {r.label.trim() || `Result ${String.fromCharCode(65 + k)}`}
                         </option>
                       ))}
                     </select>
@@ -74,7 +74,11 @@ export default function QuestionsEditor({ questions, onChange, mode, results = [
         ))}
       </ol>
       {questions.length < max && (
-        <button type="button" className="btn btn-outline btn-small" onClick={() => onChange([...questions, newQuestion(mode === 'trivia' ? 3 : namedResults.length || 3)])}>
+        <button type="button" className="btn btn-outline btn-small" onClick={() => {
+            const q = newQuestion(mode === 'trivia' ? 3 : Math.min(4, Math.max(2, namedResults.length)));
+            if (mode === 'personality') q.answers = q.answers.map((a, i) => ({ ...a, result: namedResults[i]?.id ?? null }));
+            onChange([...questions, q]);
+          }}>
           + Add a question
         </button>
       )}

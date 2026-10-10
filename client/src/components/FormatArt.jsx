@@ -68,6 +68,17 @@ export default function FormatArt({ type }) {
           <rect x="64" y="60" width="42" height="14" rx="7" fill="#ff6b6b" stroke="#161616" strokeWidth="2" />
         </svg>
       );
+    case 'personality':
+      return (
+        <svg {...common}>
+          <circle cx="40" cy="40" r="24" fill="#fff" stroke="#161616" strokeWidth="2.5" />
+          <circle cx="32" cy="36" r="3" fill="#161616" />
+          <circle cx="48" cy="36" r="3" fill="#161616" />
+          <path d="M31 47c5 5 13 5 18 0" fill="none" stroke="#161616" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M74 18h34v22H90l-8 8v-8h-8z" fill="#ffd400" stroke="#161616" strokeWidth="2.5" strokeLinejoin="round" />
+          <text x="91" y="34" fontSize="14" fontWeight="800" textAnchor="middle" fill="#161616" fontFamily="Rubik">you!</text>
+        </svg>
+      );
     default:
       return (
         <svg {...common}>

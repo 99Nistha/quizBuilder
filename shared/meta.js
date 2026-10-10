@@ -43,6 +43,12 @@ export const FORMATS = {
     color: '#1db954',
     verb: 'Vote',
   },
+  personality: {
+    name: 'Personality quiz',
+    pitch: '"Which ___ are you?" Answer a few questions, get a result to argue about.',
+    color: '#ff5a8a',
+    verb: 'Find out',
+  },
   trivia: {
     name: 'Trivia quiz',
     pitch: 'Right or wrong answers, a score at the end, bragging rights forever.',
