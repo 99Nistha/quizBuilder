@@ -35,6 +35,16 @@ export default function FormatArt({ type }) {
           <path d="M84 38l5 6 10-12" fill="none" stroke="#2f7bff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
+    case 'would_you_rather':
+      return (
+        <svg {...common}>
+          <path d="M14 14h40a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8H30l-10 9v-9h-6a8 8 0 0 1-8-8V22a8 8 0 0 1 8-8z" fill="#fff" stroke="#161616" strokeWidth="2.5" />
+          <path d="M66 28h40a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8h-6v9l-10-9H66a8 8 0 0 1-8-8V36a8 8 0 0 1 8-8z" fill="#ffd400" stroke="#161616" strokeWidth="2.5" />
+          <rect x="16" y="24" width="30" height="4" rx="2" fill="#161616" opacity=".25" />
+          <rect x="16" y="32" width="22" height="4" rx="2" fill="#161616" opacity=".25" />
+          <text x="86" y="50" fontSize="20" fontWeight="800" textAnchor="middle" fill="#161616" fontFamily="Rubik">?!</text>
+        </svg>
+      );
     default:
       return (
         <svg {...common}>

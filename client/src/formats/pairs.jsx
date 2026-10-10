@@ -116,7 +116,7 @@ export function pairsFormat({ min, max, maxLen, noun, placeholders, prompt, big,
         <div className="progress">
           <span style={{ width: `${(i / pairs.length) * 100}%` }} />
         </div>
-        <div className="pick-row" key={pair.id}>
+        <div className={`pick-row ${big ? 'pick-row-stack' : ''}`} key={pair.id}>
           <Option option={pair.a} onPick={() => pick('a')} picked={picks[pair.id] === 'a'} share={crowd?.aPct} reveal={reveal} />
           <span className="pick-vs">or</span>
           <Option option={pair.b} onPick={() => pick('b')} picked={picks[pair.id] === 'b'} share={100 - (crowd?.aPct ?? 0)} reveal={reveal} />

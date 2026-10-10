@@ -31,6 +31,12 @@ export const FORMATS = {
     color: '#2f7bff',
     verb: 'Pick',
   },
+  would_you_rather: {
+    name: 'Would you rather',
+    pitch: 'Two cursed scenarios. No dodging. Find out who else would make the same call.',
+    color: '#7b61ff',
+    verb: 'Choose',
+  },
 };
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));

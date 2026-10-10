@@ -987,6 +987,27 @@ button {
   animation: deal 0.3s ease;
 }
 
+.pick-row-stack {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.pick-row-stack .pick {
+  width: 100%;
+  min-height: 110px;
+  flex-direction: column;
+}
+
+.pick-row-stack .pick-pct {
+  position: static;
+  margin-bottom: 14px;
+}
+
+.pick-row-stack .pick-vs {
+  margin: -4px 0;
+  z-index: 1;
+}
+
 .pick-vs {
   font-family: var(--display);
   font-size: 20px;
@@ -1595,6 +1616,10 @@ button {
 
   .pick {
     min-height: 140px;
+  }
+
+  .pick-row-stack .pick {
+    min-height: 96px;
   }
 
   .pick-vs {

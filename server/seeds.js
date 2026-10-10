@@ -74,4 +74,21 @@ export const seeds = [
     data: { pairs: pairs(['Britney', 'Christina'], ['Avril', 'Kelly Clarkson'], ['Beyoncé', 'Rihanna'], ['Nelly Furtado', 'Shakira'], ['Hilary Duff', 'Lindsay Lohan']) },
     fakePlay: splitPicks,
   },
+  {
+    type: 'would_you_rather',
+    slug: 'would-you-rather-travel-chaos',
+    title: 'Would you rather: travel chaos edition',
+    blurb: 'Every option is bad. Pick the least bad.',
+    category: 'internet',
+    data: {
+      pairs: pairs(
+        ['Have a 14-hour flight next to a crying baby', 'Have a 14-hour flight next to someone who talks the whole time'],
+        ['Lose your luggage on day one', 'Lose your phone on day one'],
+        ['Only eat at chain restaurants abroad', 'Only eat street food, no exceptions'],
+        ['Travel with your ex', 'Travel with your boss'],
+        ['Sleep in an airport for one night', 'Take a 30-hour bus instead'],
+      ),
+    },
+    fakePlay: splitPicks,
+  },
 ];
