@@ -380,4 +380,15 @@ if (isProd) {
   );
 }
 
-app.listen(PORT, () => console.log(`${SITE_NAME} api on http://localhost:${PORT}`));
+// Express 5 hands listen errors to this callback, so check before claiming we're up.
+app.listen(PORT, (err) => {
+  if (err) {
+    console.error(
+      err.code === 'EADDRINUSE'
+        ? `Port ${PORT} is already in use, probably another copy of this server. Stop it, or run with PORT=<other port>.`
+        : `Couldn't start the server: ${err.message}`,
+    );
+    process.exit(1);
+  }
+  console.log(`${SITE_NAME} api on http://localhost:${PORT}`);
+});
