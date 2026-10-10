@@ -4,6 +4,7 @@ import wouldYouRather from './wouldYouRather.js';
 import poll from './poll.js';
 import trivia from './trivia.js';
 import personality from './personality.js';
+import tierList from './tierList.js';
 
 export const formats = {
   blind_ranking: blindRanking,
@@ -12,4 +13,5 @@ export const formats = {
   poll,
   trivia,
   personality,
+  tier_list: tierList,
 };

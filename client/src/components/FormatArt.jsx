@@ -79,6 +79,20 @@ export default function FormatArt({ type }) {
           <text x="91" y="34" fontSize="14" fontWeight="800" textAnchor="middle" fill="#161616" fontFamily="Rubik">you!</text>
         </svg>
       );
+    case 'tier_list':
+      return (
+        <svg {...common}>
+          {['#ff6b6b', '#ffa94d', '#ffd43b', '#8ce99a'].map((c, i) => (
+            <g key={c}>
+              <rect x="10" y={6 + i * 17} width="16" height="14" rx="3" fill={c} stroke="#161616" strokeWidth="2" />
+              <rect x="30" y={6 + i * 17} width="80" height="14" rx="3" fill="#fff" opacity=".3" />
+              {Array.from({ length: [3, 2, 1, 2][i] }, (_, j) => (
+                <rect key={j} x={34 + j * 16} y={8 + i * 17} width="12" height="10" rx="2" fill="#fff" stroke="#161616" strokeWidth="1.5" />
+              ))}
+            </g>
+          ))}
+        </svg>
+      );
     default:
       return (
         <svg {...common}>

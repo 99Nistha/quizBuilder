@@ -1602,6 +1602,123 @@ button {
   margin: 0 0 12px;
 }
 
+/* ---------- tier list ---------- */
+
+.tiers {
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.tier {
+  display: flex;
+  min-height: 72px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.tier:last-child {
+  border-bottom: 0;
+}
+
+.tier-target {
+  cursor: pointer;
+}
+
+.tier-target:hover .tier-items {
+  background: #fff8d6;
+}
+
+.tier-label {
+  width: 72px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-size: 22px;
+  border-right: 2px solid var(--ink);
+  text-align: center;
+  padding: 4px;
+  line-height: 1.05;
+  word-break: break-word;
+}
+
+.tier-items {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  align-content: flex-start;
+  transition: background 0.12s ease;
+}
+
+.tier-chip {
+  border: 0;
+  padding: 0;
+  background: none;
+  border-radius: 10px;
+  outline-offset: 2px;
+}
+
+.tier-chip-on {
+  outline: 3px solid var(--ink);
+  transform: translateY(-2px) rotate(-3deg);
+}
+
+.face-tier {
+  width: 76px;
+  height: 58px;
+  border-radius: 10px;
+}
+
+.face-tier.face-plain {
+  font-size: 12px;
+  padding: 4px;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.face-tier .face-label {
+  font-size: 11px;
+  padding: 14px 4px 4px;
+}
+
+.pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 14px;
+  background: var(--cream);
+  border-radius: 14px;
+  border: 2px dashed var(--line);
+}
+
+.tier-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.tier-names input {
+  width: 92px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.sub-heading {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 20px;
+  margin: 26px 0 12px;
+}
+
 /* ---------- results ---------- */
 
 .result {
@@ -2053,6 +2170,16 @@ button {
 
   .q-answers {
     grid-template-columns: 1fr;
+  }
+
+  .tier-label {
+    width: 52px;
+    font-size: 18px;
+  }
+
+  .face-tier {
+    width: 70px;
+    height: 52px;
   }
 
   .a-list,

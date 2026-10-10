@@ -160,4 +160,13 @@ export const seeds = [
       return { answers, outcome: Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0] };
     },
   },
+  {
+    type: 'tier_list',
+    slug: 'tier-list-breakfast-foods',
+    title: 'Tier list: breakfast foods',
+    blurb: 'Most important meal of the day. Allegedly.',
+    category: 'food',
+    data: { tiers: ['S', 'A', 'B', 'C', 'D'], items: items('Pancakes', 'Waffles', 'Cereal', 'Avocado toast', 'Full English', 'Porridge', 'Bagel', 'Croissant', 'Smoothie', 'Leftover pizza') },
+    fakePlay: (data) => ({ tiers: Object.fromEntries(data.items.map((i, n) => [i.id, Math.max(0, Math.min(4, Math.round((n % 5) * 0.8 + (Math.random() * 2 - 1))))])) }),
+  },
 ];

@@ -55,6 +55,12 @@ export const FORMATS = {
     color: '#ff7a1a',
     verb: 'Play',
   },
+  tier_list: {
+    name: 'Tier list',
+    pitch: 'Sort a pile of things into S, A, B, C and D. Then see the crowd\u2019s version.',
+    color: '#00a3b5',
+    verb: 'Sort',
+  },
 };
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));
