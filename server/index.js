@@ -449,6 +449,14 @@ if (isProd) {
 }
 
 // Express 5 hands listen errors to this callback, so check before claiming we're up.
+// A brand-new live site starts with the starter games (and their pictures).
+// Runs in the background so the site is up straight away.
+if (isProd && gameCount.get().n === 0) {
+  const { spawn } = await import('node:child_process');
+  console.log('Empty database: adding the starter games in the background…');
+  spawn(process.execPath, [path.join(root, 'server/seed.js')], { stdio: 'inherit', env: process.env });
+}
+
 app.listen(PORT, (err) => {
   if (err) {
     console.error(
