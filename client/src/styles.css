@@ -1719,6 +1719,77 @@ button {
   margin: 26px 0 12px;
 }
 
+/* ---------- bracket ---------- */
+
+.crown {
+  font-size: 48px;
+  line-height: 1;
+  color: #e0a800;
+}
+
+.bracket-scroll {
+  overflow-x: auto;
+  margin: 18px -20px 4px;
+  padding: 0 20px 8px;
+}
+
+.bracket {
+  display: flex;
+  gap: 14px;
+  min-width: max-content;
+}
+
+.bracket-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 10px;
+  width: 150px;
+}
+
+.bracket-round {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.bracket-match {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.bracket-match span {
+  padding: 5px 9px;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bracket-match span + span {
+  border-top: 1px solid var(--line);
+}
+
+.bracket-match .won {
+  font-weight: 800;
+}
+
+.bracket-match .lost {
+  color: #a39d93;
+  text-decoration: line-through;
+  text-decoration-color: rgba(0, 0, 0, 0.2);
+}
+
+.bracket-champ .bracket-match {
+  background: var(--yellow);
+}
+
 /* ---------- results ---------- */
 
 .result {

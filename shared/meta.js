@@ -61,6 +61,12 @@ export const FORMATS = {
     color: '#00a3b5',
     verb: 'Sort',
   },
+  bracket: {
+    name: 'Bracket',
+    pitch: 'Head to head knockout rounds until there\u2019s one champion left.',
+    color: '#161616',
+    verb: 'Crown',
+  },
 };
 
 export const formatList = () => Object.entries(FORMATS).map(([id, f]) => ({ id, ...f }));

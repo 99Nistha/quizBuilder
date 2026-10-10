@@ -5,6 +5,7 @@ import poll from './poll.js';
 import trivia from './trivia.js';
 import personality from './personality.js';
 import tierList from './tierList.js';
+import bracket from './bracket.js';
 
 export const formats = {
   blind_ranking: blindRanking,
@@ -14,4 +15,5 @@ export const formats = {
   trivia,
   personality,
   tier_list: tierList,
+  bracket,
 };

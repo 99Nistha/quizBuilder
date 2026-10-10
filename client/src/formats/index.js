@@ -5,6 +5,7 @@ import poll from './poll.jsx';
 import trivia from './trivia.jsx';
 import personality from './personality.jsx';
 import tierList from './tierList.jsx';
+import bracket from './bracket.jsx';
 
 // Each format provides: blank(), check(data), Editor, Player, Result, shareText(game, result)
 export const formatUI = {
@@ -15,4 +16,5 @@ export const formatUI = {
   trivia,
   personality,
   tier_list: tierList,
+  bracket,
 };

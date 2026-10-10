@@ -169,4 +169,21 @@ export const seeds = [
     data: { tiers: ['S', 'A', 'B', 'C', 'D'], items: items('Pancakes', 'Waffles', 'Cereal', 'Avocado toast', 'Full English', 'Porridge', 'Bagel', 'Croissant', 'Smoothie', 'Leftover pizza') },
     fakePlay: (data) => ({ tiers: Object.fromEntries(data.items.map((i, n) => [i.id, Math.max(0, Math.min(4, Math.round((n % 5) * 0.8 + (Math.random() * 2 - 1))))])) }),
   },
+  {
+    type: 'bracket',
+    slug: 'best-disney-song-bracket',
+    title: 'Best Disney song: the bracket',
+    blurb: 'Eight bangers enter. One leaves.',
+    category: 'music',
+    data: { shuffle: true, items: items('Let It Go', 'Circle of Life', 'A Whole New World', 'Under the Sea', 'How Far I\u2019ll Go', 'We Don\u2019t Talk About Bruno', 'Part of Your World', 'Be Our Guest') },
+    fakePlay: (data, shuffle) => {
+      const rounds = [shuffle(data.items.map((i) => i.id))];
+      const rank = Object.fromEntries(data.items.map((i, n) => [i.id, n + Math.random() * 4]));
+      while (rounds.at(-1).length > 1) {
+        const prev = rounds.at(-1);
+        rounds.push(Array.from({ length: prev.length / 2 }, (_, m) => (rank[prev[m * 2]] < rank[prev[m * 2 + 1]] ? prev[m * 2] : prev[m * 2 + 1])));
+      }
+      return { rounds };
+    },
+  },
 ];

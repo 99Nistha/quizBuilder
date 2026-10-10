@@ -93,6 +93,17 @@ export default function FormatArt({ type }) {
           ))}
         </svg>
       );
+    case 'bracket':
+      return (
+        <svg {...common}>
+          <g fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+            <path d="M10 12h20v16H10M10 52h20v16H10M30 20h18v40H30M48 40h22" />
+            <path d="M110 12H90v16h20M110 52H90v16h20M90 20H72v40h18" />
+          </g>
+          <circle cx="60" cy="40" r="11" fill="#ffd400" stroke="#fff" strokeWidth="2" />
+          <path d="M54 43l1.5-7 3 3 1.5-4 1.5 4 3-3 1.5 7z" fill="#161616" />
+        </svg>
+      );
     default:
       return (
         <svg {...common}>
